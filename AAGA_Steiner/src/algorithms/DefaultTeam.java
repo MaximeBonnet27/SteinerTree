@@ -62,9 +62,9 @@ public class DefaultTeam {
     }
     return resultTree;
   }
-
+  // Retourne l'arbre dont la racine est le point p.
   private Tree2D findInTree(Tree2D tree, Point p) {
-    if (tree == null)
+    if (tree == null)ra
       return null;
     if (tree.getRoot().equals(p)) {
       return tree;
@@ -78,7 +78,7 @@ public class DefaultTeam {
       return null;
     }
   }
-
+  // Fonction d'évaluation
   private int score(Tree2D tree) {
     double res = 0;
     ArrayList<Tree2D> trees = new ArrayList<>();
@@ -90,73 +90,87 @@ public class DefaultTeam {
     }
     return (int) res;
   }
-
+  // Ajoute des barycentres à l'arbre passé en paramètre
+  // si ceux-ci permettent d'améliorer le score.
+  // Configuration étudiée ici :
+  // Racine - Fils - Petit-Fils
   private void barycentresSubAndSubSub(Tree2D tree){
     // Liste des arbres a etudier
     ArrayList<Tree2D> trees = new ArrayList<Tree2D>();
     trees.add(tree);
     while(!trees.isEmpty()){
       Tree2D current = trees.remove(0);
+      // Les trois points considérés.
+      // P est le point correspondant à la racine de l'arbre.
       Point p = current.getRoot();
       Point q = null;
       Point r = null;
+      // On parcourt les sous-arbres
       for(int i = 0; i < current.getSubTrees().size(); ++i){
         Tree2D subTree = current.getSubTrees().get(i); 
         trees.add(subTree);
+        // Q est la racine du sous-arbre
         q = subTree.getRoot();
+        // On parcourt les sous-sous-arbres
         for(int j = 0; j < subTree.getSubTrees().size(); ++j){
           Tree2D subSubTree = subTree.getSubTrees().get(j);
+          // R est la racinde du sous sous arbre
           r = subSubTree.getRoot();
+          // Si on a bien trois points et qu'on gagne à rajouter le barycentre.
           if(p != null && q != null && r != null &&
-              betterWithBarycentre(p,q,r)){
+            betterWithBarycentre(p,q,r)){
+            // Création du barycentre et on relie correctement les arbres entre eux.
             Point barycentre = new Point((int) ((p.x + q.x + r.x) / 3), (int) ((p.y + q.y + r.y) / 3));
-            Tree2D baryTree = new Tree2D(barycentre, new ArrayList<Tree2D>());
-            current.getSubTrees().remove(subTree);
-            current.getSubTrees().add(baryTree);
-            subTree.getSubTrees().remove(subSubTree);
-            baryTree.getSubTrees().add(subTree);
-            baryTree.getSubTrees().add(subSubTree);
-          }
+          Tree2D baryTree = new Tree2D(barycentre, new ArrayList<Tree2D>());
+          current.getSubTrees().remove(subTree);
+          current.getSubTrees().add(baryTree);
+          subTree.getSubTrees().remove(subSubTree);
+          baryTree.getSubTrees().add(subTree);
+          baryTree.getSubTrees().add(subSubTree);
         }
       }
     }
   }
-
-  private void barycentresSub(Tree2D tree){
-    ArrayList<Tree2D> trees = new ArrayList<Tree2D>();
-    trees.add(tree);
-    while(!trees.isEmpty()){
-      Tree2D current = trees.remove(0);
-      Point p = current.getRoot();
-      Point q = null;
-      Point r = null;
-      for(int i = 0; i < current.getSubTrees().size(); ++i){
-        Tree2D subTree1 = current.getSubTrees().get(i);
-        trees.add(subTree1);
-        for(int j = i + 1; j < current.getSubTrees().size(); ++j){
-          Tree2D subTree2 = current.getSubTrees().get(j);
-          q = subTree1.getRoot();
-          r = subTree2.getRoot();
-          if(p != null && q != null && r != null &&
-              betterWithBarycentre(q,p,r)){
-            Point barycentre = new Point((int) ((p.x + q.x + r.x) / 3), (int) ((p.y + q.y + r.y) / 3));
-            Tree2D baryTree = new Tree2D(barycentre, new ArrayList<Tree2D>());
-            current.getSubTrees().remove(subTree1);
-            current.getSubTrees().remove(subTree2);
-            baryTree.getSubTrees().add(subTree1);
-            baryTree.getSubTrees().add(subTree2);
-            current.getSubTrees().add(baryTree);
-          }
-        }
+}
+  // Idem que la méthode précédente.
+  // Configuration étudiée ici :
+  // Fils - Racine - Fils
+private void barycentresSub(Tree2D tree){
+  ArrayList<Tree2D> trees = new ArrayList<Tree2D>();
+  trees.add(tree);
+  while(!trees.isEmpty()){
+    Tree2D current = trees.remove(0);
+    Point p = current.getRoot();
+    Point q = null;
+    Point r = null;
+    for(int i = 0; i < current.getSubTrees().size(); ++i){
+      Tree2D subTree1 = current.getSubTrees().get(i);
+      trees.add(subTree1);
+      for(int j = i + 1; j < current.getSubTrees().size(); ++j){
+        Tree2D subTree2 = current.getSubTrees().get(j);
+        q = subTree1.getRoot();
+        r = subTree2.getRoot();
+        if(p != null && q != null && r != null &&
+          betterWithBarycentre(q,p,r)){
+          Point barycentre = new Point((int) ((p.x + q.x + r.x) / 3), (int) ((p.y + q.y + r.y) / 3));
+        Tree2D baryTree = new Tree2D(barycentre, new ArrayList<Tree2D>());
+        current.getSubTrees().remove(subTree1);
+        current.getSubTrees().remove(subTree2);
+        baryTree.getSubTrees().add(subTree1);
+        baryTree.getSubTrees().add(subTree2);
+        current.getSubTrees().add(baryTree);
       }
     }
   }
-  
+}
+}
 
-  private boolean betterWithBarycentre(Point p, Point q, Point r){
-    double regularDistance = p.distance(q) + q.distance(r);
-    Point barycentre = new Point((int) ((p.x + q.x + r.x) / 3), (int) ((p.y + q.y + r.y) / 3));
-    double barycentreDistance = p.distance(barycentre) + barycentre.distance(q) + barycentre.distance(r);
-    return barycentreDistance < regularDistance;
-  }
+  // Détermine si oui ou non on gagne à rajouter le barycentre pour 
+  // les points p, q et r.
+private boolean betterWithBarycentre(Point p, Point q, Point r){
+  double regularDistance = p.distance(q) + q.distance(r);
+  Point barycentre = new Point((int) ((p.x + q.x + r.x) / 3), (int) ((p.y + q.y + r.y) / 3));
+  double barycentreDistance = p.distance(barycentre) + barycentre.distance(q) + barycentre.distance(r);
+  return barycentreDistance < regularDistance;
+}
 }
