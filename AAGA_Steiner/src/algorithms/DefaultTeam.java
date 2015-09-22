@@ -21,13 +21,22 @@ public class DefaultTeam {
   }
 
   private Tree2D prim(ArrayList<Point> points) {
-
+    // L'arbre que l'on retournera
     Tree2D resultTree = null;
+    // On prend un point au hasard pour commencer
+    // l'algorithme.
     Point p = points.get(0);
+    // Une liste qui contiendra tous les points que l'on a consulté
     ArrayList<Point> treePoints = new ArrayList<>();
-    resultTree = new Tree2D(p, new ArrayList<Tree2D>());
+    // On initialise l'arbre avec le premier point
+    resultTree = new Tree2D(p, new ArrayList<Tree2D>()); 
     treePoints.add(p);
+    // Condition d'arret : tous les points sont dans l'arbre 
+    // (l'arbre doit couvrir tous les points)
     while (treePoints.size() != points.size()) {
+      // On cherche l'arête qui relie un point de l'arbre à un point 
+      // qui n'est pas dans l'arbre. De plus c'est l'arête de longueur
+      // minimale.
       Edge minimumEdge = null;
       double minimumEdgeLength = Double.MAX_VALUE;
       for (Point treePoint : treePoints) {
@@ -40,9 +49,14 @@ public class DefaultTeam {
           }
         }
       }
+      // On récupère la feuille correspondant au point appartenant à l'arbre
+      // déjà créé. (On a fait en sorte que ce soit le bout A de l'arête)
       Tree2D leaf = findInTree(resultTree, minimumEdge.A);
+      // On crée une feuille pour le point à relier.
       Tree2D newLeaf = new Tree2D(minimumEdge.B, new ArrayList<Tree2D>());
+      // On relie les deux feuilles.
       leaf.getSubTrees().add(newLeaf);
+      // On ajoute le nouveau point à la liste.
       treePoints.add(minimumEdge.B);
 
     }
@@ -78,6 +92,7 @@ public class DefaultTeam {
   }
 
   private void barycentresSubAndSubSub(Tree2D tree){
+    // Liste des arbres a etudier
     ArrayList<Tree2D> trees = new ArrayList<Tree2D>();
     trees.add(tree);
     while(!trees.isEmpty()){
