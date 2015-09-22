@@ -2,7 +2,6 @@ package algorithms;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class DefaultTeam {
   public Tree2D calculSteiner(ArrayList<Point> points) {
@@ -11,6 +10,7 @@ public class DefaultTeam {
     int oldScore, newScore;
     do{
       oldScore = score(res);
+//      geometricMedian(res);
       barycentresSubAndSubSub(res);
       barycentresSub(res);
       newScore = score(res);
@@ -64,7 +64,7 @@ public class DefaultTeam {
   }
   // Retourne l'arbre dont la racine est le point p.
   private Tree2D findInTree(Tree2D tree, Point p) {
-    if (tree == null)ra
+    if (tree == null)
       return null;
     if (tree.getRoot().equals(p)) {
       return tree;
@@ -118,59 +118,155 @@ public class DefaultTeam {
           r = subSubTree.getRoot();
           // Si on a bien trois points et qu'on gagne à rajouter le barycentre.
           if(p != null && q != null && r != null &&
-            betterWithBarycentre(p,q,r)){
+              betterWithBarycentre(p,q,r)){
             // Création du barycentre et on relie correctement les arbres entre eux.
             Point barycentre = new Point((int) ((p.x + q.x + r.x) / 3), (int) ((p.y + q.y + r.y) / 3));
-          Tree2D baryTree = new Tree2D(barycentre, new ArrayList<Tree2D>());
-          current.getSubTrees().remove(subTree);
-          current.getSubTrees().add(baryTree);
-          subTree.getSubTrees().remove(subSubTree);
-          baryTree.getSubTrees().add(subTree);
-          baryTree.getSubTrees().add(subSubTree);
+            Tree2D baryTree = new Tree2D(barycentre, new ArrayList<Tree2D>());
+            current.getSubTrees().remove(subTree);
+            current.getSubTrees().add(baryTree);
+            subTree.getSubTrees().remove(subSubTree);
+            baryTree.getSubTrees().add(subTree);
+            baryTree.getSubTrees().add(subSubTree);
+          }
         }
       }
     }
   }
-}
   // Idem que la méthode précédente.
   // Configuration étudiée ici :
   // Fils - Racine - Fils
-private void barycentresSub(Tree2D tree){
-  ArrayList<Tree2D> trees = new ArrayList<Tree2D>();
-  trees.add(tree);
-  while(!trees.isEmpty()){
-    Tree2D current = trees.remove(0);
-    Point p = current.getRoot();
-    Point q = null;
-    Point r = null;
-    for(int i = 0; i < current.getSubTrees().size(); ++i){
-      Tree2D subTree1 = current.getSubTrees().get(i);
-      trees.add(subTree1);
-      for(int j = i + 1; j < current.getSubTrees().size(); ++j){
-        Tree2D subTree2 = current.getSubTrees().get(j);
-        q = subTree1.getRoot();
-        r = subTree2.getRoot();
-        if(p != null && q != null && r != null &&
-          betterWithBarycentre(q,p,r)){
-          Point barycentre = new Point((int) ((p.x + q.x + r.x) / 3), (int) ((p.y + q.y + r.y) / 3));
-        Tree2D baryTree = new Tree2D(barycentre, new ArrayList<Tree2D>());
-        current.getSubTrees().remove(subTree1);
-        current.getSubTrees().remove(subTree2);
-        baryTree.getSubTrees().add(subTree1);
-        baryTree.getSubTrees().add(subTree2);
-        current.getSubTrees().add(baryTree);
+  private void barycentresSub(Tree2D tree){
+    ArrayList<Tree2D> trees = new ArrayList<Tree2D>();
+    trees.add(tree);
+    while(!trees.isEmpty()){
+      Tree2D current = trees.remove(0);
+      Point p = current.getRoot();
+      Point q = null;
+      Point r = null;
+      for(int i = 0; i < current.getSubTrees().size(); ++i){
+        Tree2D subTree1 = current.getSubTrees().get(i);
+        trees.add(subTree1);
+        for(int j = i + 1; j < current.getSubTrees().size(); ++j){
+          Tree2D subTree2 = current.getSubTrees().get(j);
+          q = subTree1.getRoot();
+          r = subTree2.getRoot();
+          if(p != null && q != null && r != null &&
+              betterWithBarycentre(q,p,r)){
+            Point barycentre = new Point((int) ((p.x + q.x + r.x) / 3), (int) ((p.y + q.y + r.y) / 3));
+            Tree2D baryTree = new Tree2D(barycentre, new ArrayList<Tree2D>());
+            current.getSubTrees().remove(subTree1);
+            current.getSubTrees().remove(subTree2);
+            baryTree.getSubTrees().add(subTree1);
+            baryTree.getSubTrees().add(subTree2);
+            current.getSubTrees().add(baryTree);
+          }
+        }
       }
     }
   }
-}
-}
 
   // Détermine si oui ou non on gagne à rajouter le barycentre pour 
   // les points p, q et r.
-private boolean betterWithBarycentre(Point p, Point q, Point r){
-  double regularDistance = p.distance(q) + q.distance(r);
-  Point barycentre = new Point((int) ((p.x + q.x + r.x) / 3), (int) ((p.y + q.y + r.y) / 3));
-  double barycentreDistance = p.distance(barycentre) + barycentre.distance(q) + barycentre.distance(r);
-  return barycentreDistance < regularDistance;
-}
+  private boolean betterWithBarycentre(Point p, Point q, Point r){
+    double regularDistance = p.distance(q) + q.distance(r);
+    Point barycentre = new Point((int) ((p.x + q.x + r.x) / 3), (int) ((p.y + q.y + r.y) / 3));
+    double barycentreDistance = p.distance(barycentre) + barycentre.distance(q) + barycentre.distance(r);
+    return barycentreDistance < regularDistance;
+  }
+
+  private void geometricMedian(Tree2D tree){
+
+    // Tableaux pour parcourir les voisins
+    // dans une boucle for
+    int dx[] = {-1, 0, 1, 0};
+    int dy[] = {0, 1, 0, -1};
+
+    double delta = 20;
+    double epsilon = 0.001;
+    // Efficace que si l'arbre a au moins 2 fils
+    ArrayList<Tree2D> trees = new ArrayList<>();
+    ArrayList<Tree2D> visited = new ArrayList<>();
+    trees.add(tree);
+    while(!trees.isEmpty()){
+      Tree2D current = trees.remove(0);
+      visited.add(current);
+      Tree2D medianTree = null;
+      if(current.getSubTrees().size() > 1){
+        // Tout d'abord on cherche le centre de gravité des points.
+        ArrayList<Point> points = new ArrayList<>();
+        for(Tree2D subTree : current.getSubTrees()){
+          points.add(subTree.getRoot());
+        }
+        // Il faut prendre en considération la racine aussi.
+        points.add(current.getRoot());
+
+        Point center = centerOfGravity(points);
+        double bestSum = sumDistance(center, points);
+
+        Point candidate = null;
+        boolean found = false;
+        while(delta > epsilon){
+          found = false;
+          // Boucle pour checker des voisins autour du centre actuel
+          for(int i = 0; i < 4; ++i){
+            double x = center.getX() + delta * dx[i];
+            double y = center.getY() + delta * dy[i];
+
+            candidate = new Point((int) x, (int) y);
+            double newSum = sumDistance(candidate, points);
+
+            if(newSum < bestSum){
+              bestSum = newSum;
+              center = candidate;
+              found = true;
+              break;
+            }
+          }
+          // Si on n'a pas trouvé un meilleur candidat
+          // on cherche plus proche du point actuel
+          if(!found){
+            System.out.println("Found");
+            delta /= 2;
+          }
+          else{
+            System.out.println("NFound");
+          }
+        }
+        // Après la boucle, center contient une approximation
+        // du "geometric median" on peut donc le rajouter à l'arbre
+        medianTree = new Tree2D(center, new ArrayList<Tree2D>());
+        medianTree.getSubTrees().addAll(current.getSubTrees());
+        current.getSubTrees().clear();
+        current.getSubTrees().add(medianTree);
+      }
+      if(medianTree == null){
+        medianTree = current;
+      }
+      for(Tree2D subtree : medianTree.getSubTrees()){
+        if(!visited.contains(subtree)){
+          trees.add(subtree);
+        }
+      }
+    }
+System.out.println(visited.size());
+  }
+
+  private Point centerOfGravity(ArrayList<Point> points){
+    double x = 0, y = 0;
+    for(Point p : points){
+      x += p.x;
+      y += p.y;
+    }
+    x /= points.size();
+    y /= points.size();
+    return new Point((int) x, (int) y);
+  }
+
+  private double sumDistance(Point p, ArrayList<Point> points){
+    double sum = 0;
+    for(Point q : points){
+      sum += p.distance(q);
+    }
+    return sum;
+  }
 }
