@@ -2,6 +2,7 @@ package algorithms;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class DefaultTeam {
   public Tree2D calculSteiner(ArrayList<Point> points) {
@@ -10,12 +11,12 @@ public class DefaultTeam {
     int oldScore, newScore;
     do{
       oldScore = score(res);
-//      geometricMedian(res);
-      barycentresSubAndSubSub(res);
-      barycentresSub(res);
-      newScore = score(res);
+      //      geometricMedian(res);
+      //      barycentresSubAndSubSub(res);
+      //      barycentresSub(res);
+      barycentreMultiSubs(10, res);
+      newScore = 1000000000; //score(res);
     }while(newScore < oldScore);
-    System.out.println(score(res));
     return res;
 
   }
@@ -80,6 +81,7 @@ public class DefaultTeam {
   }
   // Fonction d'évaluation
   private int score(Tree2D tree) {
+    System.out.println("SCORE");
     double res = 0;
     ArrayList<Tree2D> trees = new ArrayList<>();
     trees.add(tree);
@@ -225,11 +227,7 @@ public class DefaultTeam {
           // Si on n'a pas trouvé un meilleur candidat
           // on cherche plus proche du point actuel
           if(!found){
-            System.out.println("Found");
             delta /= 2;
-          }
-          else{
-            System.out.println("NFound");
           }
         }
         // Après la boucle, center contient une approximation
@@ -248,7 +246,7 @@ public class DefaultTeam {
         }
       }
     }
-System.out.println(visited.size());
+    System.out.println(visited.size());
   }
 
   private Point centerOfGravity(ArrayList<Point> points){
@@ -269,4 +267,88 @@ System.out.println(visited.size());
     }
     return sum;
   }
+
+  private void barycentreMultiSubs(int nbSubs, Tree2D tree){
+
+    Random random = new Random();
+    ArrayList<Tree2D> trees = new ArrayList<>();
+    ArrayList<Tree2D> visited = new ArrayList<>();
+    trees.add(tree);
+    while(!trees.isEmpty()){
+      Tree2D current = trees.remove(0);
+      visited.add(current);
+      ArrayList<Tree2D> path = new ArrayList<>();
+      path.add(current);
+      for(int i = 0; i < nbSubs && current.getSubTrees().size() > 0; ++i){
+        current = current.getSubTrees().get(random.nextInt(current.getSubTrees().size()));
+        path.add(current);
+      }
+      double ratio, bestRatio = 1;
+      int bestNbTrees = 0;
+      for(int nbTrees = 3; nbTrees < path.size(); ++nbTrees){
+        ArrayList<Tree2D> beingChecked = new ArrayList<>();
+        for(int i = 0; i < nbTrees; ++i){
+          beingChecked.add(path.get(i));
+        }
+        Point barycentre = barycentre(beingChecked);
+        ratio = ratio(barycentre, beingChecked);
+        System.out.println(ratio);
+        if(ratio < bestRatio){
+          bestRatio = ratio;
+          bestNbTrees = nbTrees;
+        }
+      }
+      ArrayList<Tree2D> toReplace = new ArrayList<>();
+      if(bestNbTrees >= 3){
+        for(int i = 0; i < bestNbTrees; ++i){
+          toReplace.add(path.get(i));
+        }
+        Point barycentre = barycentre(toReplace);
+        Tree2D baryTree = new Tree2D(barycentre, new ArrayList<Tree2D>());
+        for(int i = 0; i < toReplace.size() - 1; ++i){
+          System.out.println("Before : " + toReplace.get(i).getSubTrees().size());
+          toReplace.get(i).getSubTrees().remove(toReplace.get(i + 1));
+          System.out.println("After : " + toReplace.get(i).getSubTrees().size());
+        }
+        toReplace.get(0).getSubTrees().add(baryTree);
+        for(int i = 1; i < toReplace.size(); ++i){
+          baryTree.getSubTrees().add(toReplace.get(i));
+        }
+
+      }
+      for(Tree2D sub : current.getSubTrees()){
+        if(!visited.contains(sub)){
+          trees.add(sub);
+        }
+      }
+    }
+    System.out.println("FIN");
+  }
+  // Comme "centerOfGravity", mais pour Tree2D (peut pas surcharger a
+  // cause de l'AList)
+  private Point barycentre(ArrayList<Tree2D> trees){
+    double x = 0, y = 0;
+    for(Tree2D t : trees){
+      x += t.getRoot().x;
+      y += t.getRoot().y;
+    }
+    x /= trees.size();
+    y /= trees.size();
+    return new Point((int) x, (int) y);
+  }
+
+  private double ratio(Point barycentre, ArrayList<Tree2D> trees){
+    Point current = trees.get(0).getRoot();
+    double regularDistance = 0;
+    for(int i = 1; i < trees.size(); ++i){
+      regularDistance += current.distance(trees.get(i).getRoot());
+      current = trees.get(i).getRoot();
+    }
+    double barycentreDistance = 0;
+    for(Tree2D t : trees){
+      barycentreDistance += barycentre.distance(t.getRoot());
+    }
+    return barycentreDistance / regularDistance;
+  }
+
 }
