@@ -7,6 +7,19 @@ import java.util.Random;
 public class DefaultTeam {
 	public Tree2D calculSteiner(ArrayList<Point> points) {
 		Tree2D res;
+		
+	/*	Point a,c,b,d,e;
+		a=new Point(100,100);
+		b=new Point(200,200);
+		c=new Point(100,200);
+		d=new Point(200,100);
+		e=new Point(300,150);
+		points.clear();
+		points.add(d);
+		points.add(a);
+		points.add(c);
+		points.add(b);
+		points.add(e);*/
 		res = Prim.compute(points);
 		int oldScore, newScore;
 		do{
@@ -14,9 +27,9 @@ public class DefaultTeam {
 			oldScore =res.score();
 			//      geometricMedian(res);
 			barycentresSubAndSubSub(res);
-			res = Prim.compute(res.getListePoints());
+			//res = Prim.compute(res.getListePoints());
 			barycentresSub(res);
-			res = Prim.compute(res.getListePoints());
+			//res = Prim.compute(res.getListePoints());
 			newScore = res.score();
 			System.out.println(newScore);
 		}while(newScore < oldScore);
