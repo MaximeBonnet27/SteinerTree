@@ -74,5 +74,13 @@ public class Tree2D {
 		  }
 	  }
   }
+  
+  public boolean check(ArrayList<Point> points){
+    for(Point p: points){
+      if(!getListePoints().contains(p))
+        return false;
+    }
+    return true;
+  }
 
 }

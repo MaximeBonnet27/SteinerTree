@@ -9,12 +9,17 @@ import java.util.Random;
 
 public class Prim {
 
-	public static Tree2D compute(ArrayList<Point> points) {
+  public static Tree2D compute(ArrayList<Point> points){
+    return compute(0, points);
+  }
+  
+	public static Tree2D compute(int depart, ArrayList<Point> points) {
+	  System.out.println("depart : " + depart);
 		// L'arbre que l'on retournera
 		Tree2D resultTree = null;
 		// On prend un point au hasard pour commencer
 		// l'algorithme.
-		Point p = points.get(0);//new Random().nextInt(points.size()));
+		Point p = points.get(depart);//new Random().nextInt(points.size()));
 		// Une liste qui contiendra tous les points que l'on a consulté
 		ArrayList<Point> treePoints = new ArrayList<>();
 		// On initialise l'arbre avec le premier point
@@ -41,7 +46,7 @@ public class Prim {
 			// On récupère la feuille correspondant au point appartenant à l'arbre
 			// déjà créé. (On a fait en sorte que ce soit le bout A de l'arête)
 			if(minimumEdge == null){
-				System.out.println("Duuuuur");
+				System.err.println("Attention, risque de bug ...");
 				treePoints.add(treePoints.get(0));
 				continue;
 			}
@@ -59,7 +64,7 @@ public class Prim {
 
 
 	// Retourne l'arbre dont la racine est le point p.
-	private static Tree2D findInTree(Tree2D tree, Point p) {
+	public static Tree2D findInTree(Tree2D tree, Point p) {
 		if (tree == null)
 			return null;
 		if (tree.getRoot().equals(p)) {
