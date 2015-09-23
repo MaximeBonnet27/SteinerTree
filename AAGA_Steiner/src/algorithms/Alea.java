@@ -60,7 +60,7 @@ public class Alea {
 		for(Point p : pointsGeneres){
 			tree.deleteIfLeaf(p);
 		}
-		return tree.getListePoints();
+		return tree.getPoints();
 	}
 
 }

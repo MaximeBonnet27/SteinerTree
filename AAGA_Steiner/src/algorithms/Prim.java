@@ -7,6 +7,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Random;
 
+import algorithms.Tracker.LABELS;
+
 public class Prim {
 
 	public static Tree2D compute(ArrayList<Point> points) {
@@ -40,12 +42,11 @@ public class Prim {
 			}
 			// On récupère la feuille correspondant au point appartenant à l'arbre
 			// déjà créé. (On a fait en sorte que ce soit le bout A de l'arête)
-			if(minimumEdge == null){
-				System.out.println("Duuuuur");
+			if(Tracker.tracke(LABELS.ERROR, minimumEdge == null, "minimumEdge==null")){
 				treePoints.add(treePoints.get(0));
 				continue;
 			}
-			Tree2D leaf = findInTree(resultTree, minimumEdge.A);
+			Tree2D leaf = resultTree.getTreeWithRoot(minimumEdge.A);
 			// On crée une feuille pour le point à relier.
 			Tree2D newLeaf = new Tree2D(minimumEdge.B, new ArrayList<Tree2D>());
 			// On relie les deux feuilles.
@@ -57,22 +58,5 @@ public class Prim {
 		return resultTree;
 	}
 
-
-	// Retourne l'arbre dont la racine est le point p.
-	private static Tree2D findInTree(Tree2D tree, Point p) {
-		if (tree == null)
-			return null;
-		if (tree.getRoot().equals(p)) {
-			return tree;
-		} else {
-			Tree2D res = null;
-			for (Tree2D sub : tree.getSubTrees()) {
-				if ((res = findInTree(sub, p)) != null) {
-					return res;
-				}
-			}
-			return null;
-		}
-	}
 
 }
