@@ -21,9 +21,9 @@ public class Fermat extends Point {
 		double sinPi3B = calculSinPi3(c, b, a);
 		double sinPi3C = calculSinPi3(a, c, b);
 
-		x = ((bc / sinPi3A) * a.x + (ab / sinPi3B) * b.x + (ca / sinPi3C) * c.x)
+		x = ((bc / sinPi3A) * a.getX() + (ab / sinPi3B) * b.getX() + (ca / sinPi3C) * c.getX())
 				/ ((bc / sinPi3A) + (ab / sinPi3B) + (ca / sinPi3C));
-		y = ((bc / sinPi3A) * a.y + (ab / sinPi3B) * b.y + (ca / sinPi3C) * c.y)
+		y = ((bc / sinPi3A) * a.getY() + (ab / sinPi3B) * b.getY() + (ca / sinPi3C) * c.getY())
 				/ ((bc / sinPi3A) + (ab / sinPi3B) + (ca / sinPi3C));
 
 		this.x = (int) x;
@@ -55,7 +55,7 @@ public class Fermat extends Point {
 				Point q = points.get(j);
 				for (int k = j + 1; k < points.size(); ++k) {
 					Point r= points.get(k);
-					if(Math.random()<0.0001)
+					if(Math.random()<0.00001)
 					fermats.add(new Fermat(p,q,r));
 				}
 			}

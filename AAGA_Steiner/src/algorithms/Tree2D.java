@@ -118,12 +118,12 @@ public class Tree2D {
 			for(int j=0;j<subTree.subtrees.size();j++){
 				//System.out.println("ApplyFermatSubAndSubSub i:"+i+" j:"+j+" size:"+subTree.subtrees.size());
 				Tree2D subSubTree=subTree.subtrees.get(j);
-				Point fermat=new Fermat(this.root, subTree.root, subSubTree.root);
+				Fermat fermat=new Fermat(this.root, subTree.root, subSubTree.root);
 
 				double regularDistance=this.root.distance(subTree.root)+subTree.root.distance(subSubTree.root);
 				double newDistance=this.root.distance(fermat)+fermat.distance(subTree.root)+fermat.distance(subSubTree.root);
 
-				if(Tracker.tracke(LABELS.INFO, newDistance<bestNewDistance && regularDistance>newDistance, "ApplyFermatSubAndSubSub meilleur fermat trouvé")){
+				if(newDistance<bestNewDistance && regularDistance>newDistance){
 					bestNewDistance=newDistance;
 					bestFermatTree=new Tree2D(fermat, new ArrayList<Tree2D>());
 					bestFermatTree.subtrees.add(subTree);
@@ -166,12 +166,12 @@ public class Tree2D {
 			for(int j=i+1;j<this.subtrees.size();j++){
 				//System.out.println("ApplyFermatSubAndSub");
 				Tree2D subTree2=this.subtrees.get(j);
-				Point fermat=new Fermat(this.root, subTree1.root, subTree2.root);
+				Fermat fermat=new Fermat(this.root, subTree1.root, subTree2.root);
 
 				double regularDistance=this.root.distance(subTree1.root)+this.root.distance(subTree2.root);
 				double newDistance=this.root.distance(fermat)+fermat.distance(subTree1.root)+fermat.distance(subTree2.root);
 
-				if(Tracker.tracke(LABELS.INFO, newDistance<bestNewDistance && regularDistance>newDistance, "ApplyFermatSubAndSub meilleur fermat trouvé")){
+				if(newDistance<bestNewDistance && regularDistance>newDistance){
 					bestNewDistance=newDistance;
 					bestFermatTree=new Tree2D(fermat, new ArrayList<Tree2D>());
 					bestFermatTree.subtrees.add(subTree1);
@@ -200,7 +200,7 @@ public class Tree2D {
 				subTree=this.subtrees.get(i);
 				
 
-				if(subTree.hasRootFermatAndSubFermat()){
+				if(subTree.hasRootFermatAndOneSub()){
 					this.subtrees.remove(subTree);
 					this.subtrees.add(i,subTree.subtrees.get(0));
 					iChanged=true;
@@ -227,8 +227,10 @@ public class Tree2D {
 		return changed;
 	}
 
-	public boolean hasRootFermatAndSubFermat(){
-		return (this.root instanceof Fermat) && this.subtrees.size()==1 && (this.subtrees.get(0).root instanceof Fermat);
+	public boolean hasRootFermatAndOneSub(){
+		return (this.root instanceof Fermat) && this.subtrees.size()==1;
 	}
+	
+	
 	
 }
