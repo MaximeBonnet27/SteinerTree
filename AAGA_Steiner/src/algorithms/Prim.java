@@ -16,7 +16,15 @@ public class Prim {
 		Tree2D resultTree = null;
 		// On prend un point au hasard pour commencer
 		// l'algorithme.
-		Point p = points.get(0);//new Random().nextInt(points.size()));
+		
+		ArrayList<Point> pointsWithoutFermat=new ArrayList<>();
+		
+		for(int i=0;i<points.size();i++){
+			if(!(points.get(i) instanceof Fermat))
+			pointsWithoutFermat.add(points.get(i));
+		}
+		Point p = pointsWithoutFermat.get(new Random().nextInt(pointsWithoutFermat.size()));
+		
 		// Une liste qui contiendra tous les points que l'on a consulté
 		ArrayList<Point> treePoints = new ArrayList<>();
 		// On initialise l'arbre avec le premier point

@@ -29,6 +29,11 @@ public class Fermat extends Point{
 		
 	}
 	
+	public Fermat(int x, int y) {
+		this.x=x;
+		this.y=y;
+	}
+
 	// Calcul de sin (PQR + PI/3)
 	private double calculSinPi3(Point p, Point q, Point r){
 		double a = q.distance(r);
