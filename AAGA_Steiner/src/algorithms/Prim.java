@@ -32,7 +32,7 @@ public class Prim {
 				pointsWithoutFermat.add(points.get(i));
 		}
 		Point p = pointsWithoutFermat.get(new Random().nextInt(pointsWithoutFermat.size()));
-
+		//Point p = points.get(new Random().nextInt(points.size()));
 		// Une liste qui contiendra tous les points que l'on a consulté
 		ArrayList<Point> treePoints = new ArrayList<>();
 		// On initialise l'arbre avec le premier point
@@ -78,13 +78,19 @@ public class Prim {
 			
 			/********/
 			boolean fermatAdded=false;
-			if(Tracker.tracke(LABELS.INFO, resultTree.ApplyFermatSubAndSub(), "ApplyFermatSubAndSub OK:"+resultTree.getPoints().size()))
+			/*if(Tracker.tracke(LABELS.INFO, resultTree.ApplyFermatSubAndSubSub(), "ApplyFermatSubAndSubSub OK:"+resultTree.getPoints().size()))
 				fermatAdded=true;
-			if(Tracker.tracke(LABELS.INFO, resultTree.ApplyFermatSubAndSubSub(), "ApplyFermatSubAndSubSub OK:"+resultTree.getPoints().size()))
+			if(Tracker.tracke(LABELS.INFO, resultTree.applyFermatSubAndSub(), "ApplyFermatSubAndSub OK:"+resultTree.getPoints().size()))
 				fermatAdded=true;
-
-			
-			/******/
+			*/
+			do{
+				fermatAdded=false;
+				if(Tracker.tracke(LABELS.INFO, Tree2D.applyFermat(resultTree), "applyFermat OK:"+resultTree.getPoints().size())){
+					fermatAdded=true;
+				}
+			}while(fermatAdded);
+			/*if(Tracker.tracke(LABELS.INFO, Tree2D.applyFermat(leaf), "applyFermat OK:"+leaf.getPoints().size()))
+				fermatAdded=true;*/
 
 		}
 		return resultTree;

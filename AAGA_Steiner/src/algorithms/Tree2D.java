@@ -1,7 +1,11 @@
 package algorithms;
 
 import java.awt.Point;
+import java.nio.file.DirectoryStream.Filter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Stack;
 
 
@@ -145,7 +149,7 @@ public class Tree2D {
 	// Idem que la méthode précédente.
 	// Configuration étudiée ici :
 	// Fils - Racine - Fils
-	public boolean ApplyFermatSubAndSub(){
+	public boolean applyFermatSubAndSub(){
 		boolean changed=false;
 
 		if(this.subtrees.size()<2){
@@ -153,7 +157,7 @@ public class Tree2D {
 		}
 
 		for(int i=0;i<this.subtrees.size();i++){
-			if(this.subtrees.get(i).ApplyFermatSubAndSub())
+			if(this.subtrees.get(i).applyFermatSubAndSub())
 				changed=true;
 		}
 
@@ -192,13 +196,13 @@ public class Tree2D {
 	public boolean afineFermat(){
 		boolean changed=false;
 		boolean iChanged;
-		
+
 		for(int i=0;i<this.subtrees.size();i++){
 			Tree2D subTree;
 			do{
 				iChanged=false;
 				subTree=this.subtrees.get(i);
-				
+
 
 				if(subTree.hasRootFermatAndOneSub()){
 					this.subtrees.remove(subTree);
@@ -210,10 +214,10 @@ public class Tree2D {
 			if(subTree.afineFermat())
 				changed=true;
 		}
-		
+
 		return changed;
 	}
-	
+
 	public boolean deleteFermatLeaf(){
 		boolean changed=false;
 		ArrayList<Point> points=this.getPoints();
@@ -223,14 +227,112 @@ public class Tree2D {
 					changed=true;
 			}
 		}
-		
+
 		return changed;
 	}
 
 	public boolean hasRootFermatAndOneSub(){
 		return (this.root instanceof Fermat) && this.subtrees.size()==1;
 	}
-	
-	
-	
+
+	public static boolean applyFermat(Tree2D tree){
+		boolean changed=false;
+
+		LinkedList<Tree2D> pile=new LinkedList<>();
+		pile.add(tree);
+		
+		for(int i=0;i<pile.size();i++){
+			Tree2D elt=pile.get(i);
+			pile.addAll(elt.subtrees);
+		}
+		
+		while(!pile.isEmpty()){
+			Tree2D elt=pile.pollLast();
+			
+			HashMap<Fermat, ArrayList<Point>> hashFermatToFils=new HashMap<>();
+
+			for(int i=0;i<elt.subtrees.size();i++){
+				Tree2D subTree=elt.subtrees.get(i);
+
+				//avec petit fils
+				for(int j=0;j<subTree.subtrees.size();j++){
+					Tree2D subSubTree=subTree.subtrees.get(j);
+
+					Fermat fermat=new Fermat(elt.root, subTree.root, subSubTree.root);
+
+					double regularDistance=elt.root.distance(subTree.root)+subTree.root.distance(subSubTree.root);
+					double newDistance=elt.root.distance(fermat)+fermat.distance(subTree.root)+fermat.distance(subSubTree.root);
+
+					fermat.setGain(regularDistance-newDistance);
+					if(fermat.getGain()>0){
+						ArrayList<Point> filsImpliquer=new ArrayList<>();
+						filsImpliquer.add(subTree.root);
+						filsImpliquer.add(subSubTree.root);
+						hashFermatToFils.put(fermat, filsImpliquer);
+					}
+				}
+
+				//avec fils
+				if(i<elt.subtrees.size()-1){
+					for(int j=i+1;j<elt.subtrees.size();j++){
+						Tree2D subTreeBis=elt.subtrees.get(j);
+
+						Fermat fermat=new Fermat(elt.root, subTree.root, subTreeBis.root);
+
+						double regularDistance=elt.root.distance(subTree.root)+elt.root.distance(subTreeBis.root);
+						double newDistance=elt.root.distance(fermat)+fermat.distance(subTree.root)+fermat.distance(subTreeBis.root);
+
+						fermat.setGain(regularDistance-newDistance);
+						if(fermat.getGain()>0){
+							ArrayList<Point> filsImpliquer=new ArrayList<>();
+							filsImpliquer.add(subTree.root);
+							filsImpliquer.add(subTreeBis.root);
+							hashFermatToFils.put(fermat, filsImpliquer);
+						}
+					}
+				}
+			}
+
+
+			//application dabor meilleur fermat
+			ArrayList<Fermat> fermats=new ArrayList<>(hashFermatToFils.keySet());
+
+			Collections.sort(fermats);
+			Collections.reverse(fermats);
+			
+			while(!fermats.isEmpty()){
+				
+				Fermat best=fermats.remove(0);
+				Point a=hashFermatToFils.get(best).get(0);
+				Point b=hashFermatToFils.get(best).get(1);
+
+				//filtre fermat implquant meme fils
+				for(int i=0;i<fermats.size();i++){
+					ArrayList<Point> impliquer=hashFermatToFils.get(fermats.get(i));
+					if(impliquer.contains(a) || impliquer.contains(b)){
+						fermats.remove(i);
+						i--;
+					}
+				}
+
+				Tree2D fermatTree=new Tree2D(best, new ArrayList<Tree2D>());
+				Tree2D treeA=elt.getTreeWithRoot(a);
+				Tree2D treeB=elt.getTreeWithRoot(b);
+				fermatTree.subtrees.add(treeA);
+				fermatTree.subtrees.add(treeB);
+
+				elt.subtrees.remove(treeA) ;
+				elt.subtrees.remove(treeB);
+					
+				treeA.subtrees.remove(treeB);
+				treeB.subtrees.remove(treeA);
+				elt.subtrees.add(fermatTree);
+				
+				changed=true;
+			}
+		}
+		return changed;
+	}
+
+
 }

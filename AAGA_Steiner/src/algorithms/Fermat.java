@@ -7,10 +7,12 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Fermat extends Point {
+public class Fermat extends Point implements Comparable<Fermat>{
 
 	private static final double PI3 = Math.PI / 3;
-
+	
+	private double gain;
+	
 	public Fermat(Point a, Point b, Point c) {
 		double x, y;
 		double bc = b.distance(c);
@@ -29,6 +31,14 @@ public class Fermat extends Point {
 		this.x = (int) x;
 		this.y = (int) y;
 
+	}
+	
+	public void setGain(double gain) {
+		this.gain = gain;
+	}
+	
+	public double getGain() {
+		return gain;
 	}
 
 	public Fermat(int x, int y) {
@@ -61,6 +71,11 @@ public class Fermat extends Point {
 			}
 		}
 		return fermats;
+	}
+
+	@Override
+	public int compareTo(Fermat o) {
+		return java.lang.Double.compare(gain, o.gain);
 	}
 
 }
