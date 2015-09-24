@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import algorithms.Fermat;
+import algorithms.Tree2D;
 public class AlgorithmeGenetique{
 
 	private final int NOMBRE_GENERATIONS = 100; //100*100
@@ -15,7 +16,7 @@ public class AlgorithmeGenetique{
 	private static ArrayList<Point> points;
 	public static ArrayList<Point> fermats;
 	
-	public Individu best;
+	public Tree2D best;
 	private int bestScore = Integer.MAX_VALUE;
 	
 	public AlgorithmeGenetique(ArrayList<Point> points) {
@@ -39,10 +40,9 @@ public class AlgorithmeGenetique{
 			System.out.println("Meilleur score " + population[0]);
 			if(population[0].getScore() < bestScore ){
 				bestScore = population[0].getScore();
-				best = population[0];
+				best = population[0].res();
 				System.out.println("best score : " + bestScore);
 			}
-
 		}
 		return population;
 	}
@@ -54,7 +54,7 @@ public class AlgorithmeGenetique{
 	}
 	
 	public Individu individuAleatoire(){
-		int n = 3 + (int) (Math.random() * 20);
+		int n = 3 + (int) (Math.random() * 100);
 		int[] tab = new int[n];
 		for(int i = 0; i < n; ++i){
 			tab[i] = (int) (Math.random() * fermats.size());

@@ -26,15 +26,17 @@ public class Individu implements Comparable<Individu>{
 		}
 		Tree2D res = Prim.compute(pointsConsideres);
 		DefaultTeam dt = new DefaultTeam();
-		dt.barycentreMultiSubs(res);
-		dt.barycentresSub(res);
-		dt.barycentresSubAndSubSub(res);
+		for(int i = 0; i < 10; ++i){
+			dt.barycentreMultiSubs(res);
+			dt.barycentresSub(res);
+			dt.barycentresSubAndSubSub(res);
+		}
 		this.res = res;
 		score = res.score();
 	}
 
 	public int getScore(){
-		return score;
+		return res().score();
 	}
 
 	@Override
@@ -45,15 +47,17 @@ public class Individu implements Comparable<Individu>{
 
 	@Override
 	public String toString(){
-		return "Individu : N = " + nbPointsEnPlus + " -> " + getScore();
+		return "Individu : N = " + nbPointsEnPlus + " -> " + score;
 	}
 
 	public Tree2D res(){
 		DefaultTeam dt = new DefaultTeam();
-		dt.barycentreMultiSubs(res);
-		dt.barycentresSub(res);
-		dt.barycentresSubAndSubSub(res);
-		System.out.println(res.score());
+		for(int i = 0; i < 10; ++i){
+			dt.barycentreMultiSubs(res);
+			dt.barycentresSub(res);
+			dt.barycentresSubAndSubSub(res);
+		}
+		System.out.println("res -> " + res.score());
 		return res;
 	}
 

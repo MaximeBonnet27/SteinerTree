@@ -10,10 +10,26 @@ import genetic.AlgorithmeGenetique;
 public class DefaultTeam {
 	public Tree2D calculSteiner(ArrayList<Point> points) {
 		Tree2D res = null;
-		res = Prim.compute(points);
-		barycentreMultiSubs(res);
-		barycentresSub(res);
-		barycentresSubAndSubSub(res);
+//		res = Prim.compute(points);
+//		int bestScore = res.score();
+//		int score = Integer.MAX_VALUE;
+//		int i = 0;
+//		while(score > bestScore || i++ < 100){
+//			barycentreMultiSubs(res);
+//			barycentresSub(res);
+//			barycentresSubAndSubSub(res);
+//			score = res.score();
+//		}
+//		return res;
+		
+		AlgorithmeGenetique algo = new AlgorithmeGenetique(points);
+		algo.calculer();
+		res = algo.best;
+		for(int i = 0; i < 10; ++i){
+			barycentreMultiSubs(res);
+			barycentresSub(res);
+			barycentresSubAndSubSub(res);
+		}
 		return res;
 	}
 
@@ -337,9 +353,9 @@ public class DefaultTeam {
 							Point r = localPoints.get(k);
 							Point fermat = new Fermat(p, q, r);
 							if (betterWithBarycentre(p, q, r)) {
-								
+
 								System.out.println("Ajoute un point");
-								
+
 								Tree2D fermatTree = new Tree2D(fermat, new ArrayList<Tree2D>());
 								Tree2D pTree = Prim.findInTree(tree, p);
 								Tree2D qTree = Prim.findInTree(tree, q);
