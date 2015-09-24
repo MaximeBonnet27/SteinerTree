@@ -45,7 +45,6 @@ public class Prim {
 			// On récupère la feuille correspondant au point appartenant à l'arbre
 			// déjà créé. (On a fait en sorte que ce soit le bout A de l'arête)
 			if(minimumEdge == null){
-				System.err.println("Attention, risque de bug ...");
 				treePoints.add(treePoints.get(0));
 				continue;
 			}

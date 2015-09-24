@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import algorithms.DefaultTeam;
 import algorithms.Fermat;
 import algorithms.Tree2D;
 public class AlgorithmeGenetique{
@@ -20,7 +21,7 @@ public class AlgorithmeGenetique{
 	private int bestScore = Integer.MAX_VALUE;
 	
 	public AlgorithmeGenetique(ArrayList<Point> points) {
-		fermats = Fermat.computeAll(points);
+		fermats = new DefaultTeam().bestFermatPoints(points);
 		AlgorithmeGenetique.points = points;
 		population = new Individu[TAILLE_POP];
 		for(int i = 0; i < TAILLE_POP; ++i){
@@ -34,7 +35,7 @@ public class AlgorithmeGenetique{
 	}
 
 	public Individu[] calculer(){
-		for(int i = 0; i < NOMBRE_GENERATIONS; ++i){
+		for(int i = 0; bestScore > 3900; ++i){
 			System.out.println("Generation : " + i);
 			calculerGeneration();
 			System.out.println("Meilleur score " + population[0]);

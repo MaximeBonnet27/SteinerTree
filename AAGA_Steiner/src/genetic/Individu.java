@@ -8,14 +8,16 @@ import algorithms.Prim;
 import algorithms.Tree2D;
 
 public class Individu implements Comparable<Individu>{
-
+  private static int no = 0;
 	private Tree2D res;
 	public int score;
 	public int nbPointsEnPlus;
 	public int[] indexes;
+	public int num;
 	public Individu(int n, int[] indexes) {
 		nbPointsEnPlus = n;
 		this.indexes = indexes;
+		num = no++;
 	}
 
 	public void calculScore(){
@@ -47,7 +49,7 @@ public class Individu implements Comparable<Individu>{
 
 	@Override
 	public String toString(){
-		return "Individu : N = " + nbPointsEnPlus + " -> " + score;
+		return "Individu no " + num + " : points = " + nbPointsEnPlus + " -> " + score;
 	}
 
 	public Tree2D res(){
