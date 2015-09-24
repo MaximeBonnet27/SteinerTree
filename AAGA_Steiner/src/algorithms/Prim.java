@@ -14,7 +14,6 @@ public class Prim {
   }
   
 	public static Tree2D compute(int depart, ArrayList<Point> points) {
-	  System.out.println("depart : " + depart);
 		// L'arbre que l'on retournera
 		Tree2D resultTree = null;
 		// On prend un point au hasard pour commencer
