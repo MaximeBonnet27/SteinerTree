@@ -13,7 +13,7 @@ import algorithms.Tracker.LABELS;
 
 public class Prim {
 
-	public static Tree2D compute(ArrayList<Point> points) {
+	public static Tree2D compute(ArrayList<Point> points,Point depart) {
 
 		int beforeSize=points.size();
 		points=checkDoublons(points);
@@ -31,8 +31,11 @@ public class Prim {
 			if(!(points.get(i) instanceof Fermat))
 				pointsWithoutFermat.add(points.get(i));
 		}
-		Point p = pointsWithoutFermat.get(new Random().nextInt(pointsWithoutFermat.size()));
+
+
+		//Point p = pointsWithoutFermat.get(new Random().nextInt(pointsWithoutFermat.size()));
 		//Point p = points.get(new Random().nextInt(points.size()));
+		Point p=depart;
 		// Une liste qui contiendra tous les points que l'on a consulté
 		ArrayList<Point> treePoints = new ArrayList<>();
 		// On initialise l'arbre avec le premier point
@@ -50,7 +53,7 @@ public class Prim {
 			// minimale.
 			Edge minimumEdge = null;
 			double minimumEdgeLength = Double.MAX_VALUE;
-			
+
 			for (Point treePoint : treePoints) {
 				for (Point point : points) {
 					if (!treePoints.contains(point)) {
@@ -68,27 +71,30 @@ public class Prim {
 				continue;
 			}
 			Tree2D leaf = resultTree.getTreeWithRoot(minimumEdge.A);
-				
+
 			// On crée une feuille pour le point à relier.
 			Tree2D newLeaf = new Tree2D(minimumEdge.B, new ArrayList<Tree2D>());
 			// On relie les deux feuilles.
 			leaf.getSubTrees().add(newLeaf);
 			// On ajoute le nouveau point à la liste.
 			treePoints.add(minimumEdge.B);
-			
+
 			/********/
 			boolean fermatAdded=false;
+			resultTree.ApplyFermatSubAndSubSub();
+			resultTree.applyFermatSubAndSub();
 			/*if(Tracker.tracke(LABELS.INFO, resultTree.ApplyFermatSubAndSubSub(), "ApplyFermatSubAndSubSub OK:"+resultTree.getPoints().size()))
 				fermatAdded=true;
 			if(Tracker.tracke(LABELS.INFO, resultTree.applyFermatSubAndSub(), "ApplyFermatSubAndSub OK:"+resultTree.getPoints().size()))
-				fermatAdded=true;
-			*/
-			do{
+				fermatAdded=true;*/
+
+			/*do{
 				fermatAdded=false;
 				if(Tracker.tracke(LABELS.INFO, Tree2D.applyFermat(resultTree), "applyFermat OK:"+resultTree.getPoints().size())){
 					fermatAdded=true;
 				}
-			}while(fermatAdded);
+			}while(fermatAdded);*/
+			Tree2D.applyFermat(leaf);
 			/*if(Tracker.tracke(LABELS.INFO, Tree2D.applyFermat(leaf), "applyFermat OK:"+leaf.getPoints().size()))
 				fermatAdded=true;*/
 

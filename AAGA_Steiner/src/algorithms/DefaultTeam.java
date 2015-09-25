@@ -9,23 +9,6 @@ import algorithms.Tracker.LABELS;
 public class DefaultTeam {
 	public Tree2D calculSteiner(ArrayList<Point> points) {
 
-		/*******/
-		double xMin = Double.MAX_VALUE, xMax = Double.MIN_VALUE;
-		double yMin = Double.MAX_VALUE, yMax = Double.MIN_VALUE;
-		for (Point p : points) {
-			if(p.x > xMax)
-				xMax = p.x;
-			if(p.x < xMin)
-				xMin = p.x;
-			if(p.y > yMax)
-				yMax = p.y;
-			if(p.y < yMin)
-				yMin = p.y;
-		}
-		//ArrayList<Fermat> fermats = generate(100, xMin, yMin, xMax, yMax);
-		//points.addAll(fermats);
-
-		/*******/
 		Tree2D treeTmp;
 		Tree2D best=null;
 		int bestScore=Integer.MAX_VALUE;
@@ -37,11 +20,24 @@ public class DefaultTeam {
 		do{
 			changed=false;
 
-			treeTmp=Prim.compute(points);
+			Tree2D bestPrim=null;
+			int scorePrim;
+			int bestScorePrim=Integer.MAX_VALUE;
+
+			for(Point p:points){
+				treeTmp=Prim.compute(points,p);
+				scorePrim=treeTmp.score();
+				if(scorePrim<bestScorePrim){
+					bestScorePrim=scorePrim;
+					bestPrim=treeTmp;
+				}
+			}
+
+			treeTmp=bestPrim;
 			reduce++;
 
 			boolean fermatChanged;
-			//if(reduce%5==0){
+			if(reduce%2==0){
 			do{
 				fermatChanged=false;
 				if(Tracker.tracke(LABELS.INFO, treeTmp.deleteFermatLeaf(), "deleteFermatLeaf OK:"+treeTmp.getPoints().size())){
@@ -53,7 +49,7 @@ public class DefaultTeam {
 					fermatChanged=true;
 				}
 			}while(fermatChanged);
-			//}
+			}
 			/*if(Tracker.tracke(LABELS.INFO, treeTmp.applyFermatSubAndSub(), "ApplyFermatSubAndSub OK:"+treeTmp.getPoints().size()))
 				changed=true;
 
@@ -69,7 +65,7 @@ public class DefaultTeam {
 				}
 			}while(applyed);
 
-			//if(reduce%5==0){
+			if(reduce%2==0){
 			do{
 				fermatChanged=false;
 				if(Tracker.tracke(LABELS.INFO, treeTmp.deleteFermatLeaf(), "deleteFermatLeaf OK:"+treeTmp.getPoints().size())){
@@ -81,7 +77,7 @@ public class DefaultTeam {
 					fermatChanged=true;
 				}
 			}while(fermatChanged);
-			//}
+			}
 
 			points=treeTmp.getPoints();
 
@@ -91,17 +87,14 @@ public class DefaultTeam {
 				best=treeTmp;
 			}
 
-			//if(Tracker.tracke(LABELS.INFO, checkUnusedFermat(points, fermats), "CheckUnusedFermat OK:"+treeTmp.getPoints().size()))
-			//changed=true;
-
 			if(changed)
 				countNoChanged=0;
 			else
 				countNoChanged++;
-			if(countNoChanged==100){
+			if(countNoChanged==5){
 				countNoChanged=0;
 				for(int j=0;j<points.size();j++){
-					if(Tracker.tracke(LABELS.INFO, points.get(j) instanceof Fermat, "suppression 30% fermat")){
+					if(Tracker.tracke(LABELS.INFO, (points.get(j) instanceof Fermat) && Math.random()<0.3, "suppression 30% fermat")){
 						points.remove(j);
 						j--;
 					}
@@ -109,7 +102,7 @@ public class DefaultTeam {
 			}
 
 			i++;
-		}while(Tracker.tracke(LABELS.INFO, changed || i<1000, "boucle: size : " + points.size() + " changed:"+changed+" i:"+i+" bestScore:"+bestScore));
+		}while(Tracker.tracke(LABELS.STATUS, changed || i<20, "changed : "+changed+" size : " + points.size() + " i : "+i+" bestScore : "+bestScore));
 
 		return best;
 	}
@@ -126,30 +119,6 @@ public class DefaultTeam {
 			liste.add(new Fermat(x, y));
 		}
 		return liste;
-	}
-
-	public boolean checkUnusedFermat(ArrayList<Point> points, ArrayList<Fermat> fermats){
-		boolean estCeQueJaiFaitQuelquechose = false;
-		double scoreMin = Double.MAX_VALUE;
-		Tree2D tree;
-		for(Fermat fermat : fermats){
-
-			points.remove(fermat);
-
-			tree = Prim.compute(points);
-			double score = tree.score();
-			if(score < scoreMin){
-				estCeQueJaiFaitQuelquechose = true;
-				scoreMin = score;
-			}
-			else{
-				if(!points.contains(fermat)){
-					points.add(fermat);
-				}
-			}
-		}
-
-		return estCeQueJaiFaitQuelquechose;
 	}
 
 }

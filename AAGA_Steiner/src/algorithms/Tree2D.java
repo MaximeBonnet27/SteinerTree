@@ -237,57 +237,63 @@ public class Tree2D {
 
 	public static boolean applyFermat(Tree2D tree){
 		boolean changed=false;
+		boolean newFermat;
 
-		LinkedList<Tree2D> pile=new LinkedList<>();
-		pile.add(tree);
-		
-		for(int i=0;i<pile.size();i++){
-			Tree2D elt=pile.get(i);
-			pile.addAll(elt.subtrees);
-		}
-		
-		while(!pile.isEmpty()){
-			Tree2D elt=pile.pollLast();
-			
+		do{
+			newFermat=false;
+			LinkedList<Tree2D> pile=new LinkedList<>();
+			pile.add(tree);
+
+			for(int i=0;i<pile.size();i++){
+				Tree2D elt=pile.get(i);
+				pile.addAll(elt.subtrees);
+			}
+
 			HashMap<Fermat, ArrayList<Point>> hashFermatToFils=new HashMap<>();
 
-			for(int i=0;i<elt.subtrees.size();i++){
-				Tree2D subTree=elt.subtrees.get(i);
+			while(!pile.isEmpty()){
+				Tree2D elt=pile.pollLast();
 
-				//avec petit fils
-				for(int j=0;j<subTree.subtrees.size();j++){
-					Tree2D subSubTree=subTree.subtrees.get(j);
+				for(int i=0;i<elt.subtrees.size();i++){
+					Tree2D subTree=elt.subtrees.get(i);
 
-					Fermat fermat=new Fermat(elt.root, subTree.root, subSubTree.root);
+					//avec petit fils
+					for(int j=0;j<subTree.subtrees.size();j++){
+						Tree2D subSubTree=subTree.subtrees.get(j);
 
-					double regularDistance=elt.root.distance(subTree.root)+subTree.root.distance(subSubTree.root);
-					double newDistance=elt.root.distance(fermat)+fermat.distance(subTree.root)+fermat.distance(subSubTree.root);
+						Fermat fermat=new Fermat(elt.root, subTree.root, subSubTree.root);
 
-					fermat.setGain(regularDistance-newDistance);
-					if(fermat.getGain()>0){
-						ArrayList<Point> filsImpliquer=new ArrayList<>();
-						filsImpliquer.add(subTree.root);
-						filsImpliquer.add(subSubTree.root);
-						hashFermatToFils.put(fermat, filsImpliquer);
-					}
-				}
-
-				//avec fils
-				if(i<elt.subtrees.size()-1){
-					for(int j=i+1;j<elt.subtrees.size();j++){
-						Tree2D subTreeBis=elt.subtrees.get(j);
-
-						Fermat fermat=new Fermat(elt.root, subTree.root, subTreeBis.root);
-
-						double regularDistance=elt.root.distance(subTree.root)+elt.root.distance(subTreeBis.root);
-						double newDistance=elt.root.distance(fermat)+fermat.distance(subTree.root)+fermat.distance(subTreeBis.root);
+						double regularDistance=elt.root.distance(subTree.root)+subTree.root.distance(subSubTree.root);
+						double newDistance=elt.root.distance(fermat)+fermat.distance(subTree.root)+fermat.distance(subSubTree.root);
 
 						fermat.setGain(regularDistance-newDistance);
 						if(fermat.getGain()>0){
-							ArrayList<Point> filsImpliquer=new ArrayList<>();
-							filsImpliquer.add(subTree.root);
-							filsImpliquer.add(subTreeBis.root);
-							hashFermatToFils.put(fermat, filsImpliquer);
+							ArrayList<Point> pointsImpliquer=new ArrayList<>();
+							pointsImpliquer.add(elt.root);
+							pointsImpliquer.add(subTree.root);
+							pointsImpliquer.add(subSubTree.root);
+							hashFermatToFils.put(fermat, pointsImpliquer);
+						}
+					}
+
+					//avec fils
+					if(i<elt.subtrees.size()-1){
+						for(int j=i+1;j<elt.subtrees.size();j++){
+							Tree2D subTreeBis=elt.subtrees.get(j);
+
+							Fermat fermat=new Fermat(elt.root, subTree.root, subTreeBis.root);
+
+							double regularDistance=elt.root.distance(subTree.root)+elt.root.distance(subTreeBis.root);
+							double newDistance=elt.root.distance(fermat)+fermat.distance(subTree.root)+fermat.distance(subTreeBis.root);
+
+							fermat.setGain(regularDistance-newDistance);
+							if(fermat.getGain()>0){
+								ArrayList<Point> pointsImpliquer=new ArrayList<>();
+								pointsImpliquer.add(elt.root);
+								pointsImpliquer.add(subTree.root);
+								pointsImpliquer.add(subTreeBis.root);
+								hashFermatToFils.put(fermat, pointsImpliquer);
+							}
 						}
 					}
 				}
@@ -299,40 +305,91 @@ public class Tree2D {
 
 			Collections.sort(fermats);
 			Collections.reverse(fermats);
-			
+
+			//if(!fermats.isEmpty()){
+			//fermats=bestCombine(fermats, hashFermatToFils);
 			while(!fermats.isEmpty()){
-				
 				Fermat best=fermats.remove(0);
-				Point a=hashFermatToFils.get(best).get(0);
-				Point b=hashFermatToFils.get(best).get(1);
+				Point rootConcerne=hashFermatToFils.get(best).get(0);
+				Point a=hashFermatToFils.get(best).get(1);
+				Point b=hashFermatToFils.get(best).get(2);
 
 				//filtre fermat implquant meme fils
 				for(int i=0;i<fermats.size();i++){
 					ArrayList<Point> impliquer=hashFermatToFils.get(fermats.get(i));
-					if(impliquer.contains(a) || impliquer.contains(b)){
+					if(impliquer.contains(a) || impliquer.contains(b) || impliquer.contains(rootConcerne)){
 						fermats.remove(i);
 						i--;
 					}
 				}
 
+				Tree2D rootFermat=tree.getTreeWithRoot(rootConcerne);
 				Tree2D fermatTree=new Tree2D(best, new ArrayList<Tree2D>());
-				Tree2D treeA=elt.getTreeWithRoot(a);
-				Tree2D treeB=elt.getTreeWithRoot(b);
+				Tree2D treeA=tree.getTreeWithRoot(a);
+				Tree2D treeB=tree.getTreeWithRoot(b);
 				fermatTree.subtrees.add(treeA);
 				fermatTree.subtrees.add(treeB);
 
-				elt.subtrees.remove(treeA) ;
-				elt.subtrees.remove(treeB);
-					
+				rootFermat.subtrees.remove(treeA) ;
+				rootFermat.subtrees.remove(treeB);
+
 				treeA.subtrees.remove(treeB);
 				treeB.subtrees.remove(treeA);
-				elt.subtrees.add(fermatTree);
-				
+
+				rootFermat.subtrees.add(fermatTree);
+
 				changed=true;
+				newFermat=true;
 			}
-		}
+
+		}while(newFermat);
+
 		return changed;
 	}
 
+	private static ArrayList<Fermat> bestCombine(ArrayList<Fermat> fermats,HashMap<Fermat, ArrayList<Point>> hashFermatToFils){
+		double bestGainTotal=Integer.MIN_VALUE;
+		double gainTotal;
+
+		if(fermats.size()<2){
+			return fermats;
+		}
+
+
+		ArrayList<Fermat> clone;
+		ArrayList<Fermat> bestList=null;
+		ArrayList<Fermat> list;
+		for(int i=0;i<fermats.size();i++){
+			clone=new ArrayList<>(fermats.subList(i, fermats.size()));
+
+			Fermat f1=fermats.get(i);
+			clone.remove(f1);
+
+			//filtre fermat implquant meme fils
+			for(int j=0;j<clone.size();j++){
+				ArrayList<Point> impliquer=hashFermatToFils.get(clone.get(j));
+				Point rootConcerne=hashFermatToFils.get(f1).get(0);
+				Point a=hashFermatToFils.get(f1).get(1);
+				Point b=hashFermatToFils.get(f1).get(2);
+				if(impliquer.contains(a) || impliquer.contains(b) || impliquer.contains(rootConcerne)){
+					clone.remove(j);
+					j--;
+				}
+			}
+			list=bestCombine(clone, hashFermatToFils);
+
+			gainTotal=f1.getGain();
+			for(Fermat f:list)
+				gainTotal+=f.getGain();
+
+			if(gainTotal>bestGainTotal){
+				bestGainTotal=gainTotal;
+				bestList=list;
+			}
+		}
+
+
+		return bestList;
+	}
 
 }
