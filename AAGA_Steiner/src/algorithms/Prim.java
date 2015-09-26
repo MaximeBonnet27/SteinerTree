@@ -72,19 +72,25 @@ public class Prim {
 			// On ajoute le nouveau point à la liste.
 			treePoints.add(minimumEdge.B);
 
+			
+			//resultTree.ApplyFermatSubAndSubSub();
+			//resultTree.applyFermatSubAndSub();
+			/*Tracker.removeMask(LABELS.INFO.getMask());
 			Tracker.tracke(LABELS.INFO, resultTree.ApplyFermatSubAndSubSub(), "ApplyFermatSubAndSubSub OK:"+resultTree.getPoints().size());
 			Tracker.tracke(LABELS.INFO, resultTree.applyFermatSubAndSub(), "ApplyFermatSubAndSub OK:"+resultTree.getPoints().size());
-
-			/*boolean fermatAdded;
+			Tracker.addMask(LABELS.INFO.getMask());*/
+			boolean fermatAdded;
 			do{
 				fermatAdded=false;
-				if(Tracker.tracke(LABELS.INFO, Tree2D.applyFermat(resultTree), "applyFermat OK:"+resultTree.getPoints().size())){
+				if(Tree2D.applyFermat(resultTree)){//Tracker.tracke(LABELS.INFO, Tree2D.applyFermat(resultTree), "applyFermat OK:"+resultTree.getPoints().size())){
 					fermatAdded=true;
 				}
-			}while(fermatAdded);*/
+			}while(fermatAdded);
 			
 
 		}
+		
+		
 		return resultTree;
 	}
 

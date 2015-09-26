@@ -123,7 +123,6 @@ public class Tree2D {
 			double bestNewDistance=Double.MAX_VALUE;
 
 			for(int j=0;j<subTree.subtrees.size();j++){
-				//System.out.println("ApplyFermatSubAndSubSub i:"+i+" j:"+j+" size:"+subTree.subtrees.size());
 				Tree2D subSubTree=subTree.subtrees.get(j);
 				Fermat fermat=new Fermat(this.root, subTree.root, subSubTree.root);
 
@@ -171,7 +170,6 @@ public class Tree2D {
 			double bestNewDistance=Double.MAX_VALUE;
 
 			for(int j=i+1;j<this.subtrees.size();j++){
-				//System.out.println("ApplyFermatSubAndSub");
 				Tree2D subTree2=this.subtrees.get(j);
 				Fermat fermat=new Fermat(this.root, subTree1.root, subTree2.root);
 
@@ -251,7 +249,6 @@ public class Tree2D {
 				Tree2D elt=pile.get(i);
 				pile.addAll(elt.subtrees);
 			}
-
 			HashMap<Fermat, ArrayList<Point>> hashFermatToFils=new HashMap<>();
 
 			while(!pile.isEmpty()){
@@ -302,7 +299,7 @@ public class Tree2D {
 				}
 			}
 
-
+			
 			//application dabor meilleur fermat
 			ArrayList<Fermat> fermats=new ArrayList<>(hashFermatToFils.keySet());
 
@@ -342,7 +339,7 @@ public class Tree2D {
 				changed=true;
 				newFermat=true;
 			}
-
+			
 		}while(newFermat);
 
 		return changed;

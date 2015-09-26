@@ -1,16 +1,18 @@
 package algorithms;
 
+import java.util.ArrayList;
+
 public class Tracker {
 	public static enum LABELS{
-		INFO("[ INFO ]",1),
-		ERROR("[ ERROR ]",1<<1),
-		STATUS("[ STATUS ]",1<<2);
+		INFO("[ INFO ]",0),
+		ERROR("[ ERROR ]",1),
+		STATUS("[ STATUS ]",2);
 
 		private String label;
-		private Byte mask;
+		private int mask;
 		private int count;
 
-		LABELS(String label,byte mask) {
+		LABELS(String label,int mask) {
 			this.mask=mask;
 			this.label=label;
 			this.count++;
@@ -21,18 +23,25 @@ public class Tracker {
 			return this.label;
 		}
 
-		public byte getMask() {
+		public int getMask() {
 			return mask;
 		}
 	}
 
-	private static byte mask;
-	public static void setMask(byte mask) {
-		Tracker.mask = mask;
+	private static ArrayList<Integer> mask=new ArrayList<>();
+	
+	public static void addMask(int mask) {
+		if(!Tracker.mask.contains(mask))
+			Tracker.mask.add(mask);
+	}
+	
+	public static void removeMask(int mask) {
+		Tracker.mask.remove(new Integer(mask));
+		
 	}
 
 	public static boolean tracke(LABELS label,boolean expr,String message){
-		if(mask & label.getMask()){
+		if(Tracker.mask.contains(label.getMask())){
 			if(expr)
 				System.out.println(label.getLabel()+" : "+message);
 		}

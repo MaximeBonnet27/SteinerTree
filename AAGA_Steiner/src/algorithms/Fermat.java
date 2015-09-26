@@ -12,7 +12,6 @@ public class Fermat extends Point implements Comparable<Fermat>{
 	private static final double PI3 = Math.PI / 3;
 	
 	private double gain;
-	private double xD,yD;
 	
 	public Fermat(Point a, Point b, Point c) {
 		double x, y;
@@ -29,8 +28,8 @@ public class Fermat extends Point implements Comparable<Fermat>{
 		y = ((bc / sinPi3A) * a.getY() + (ab / sinPi3B) * b.getY() + (ca / sinPi3C) * c.getY())
 				/ ((bc / sinPi3A) + (ab / sinPi3B) + (ca / sinPi3C));
 
-		this.xD = x;
-		this.yD = y;
+		this.x = (int) x;
+		this.y = (int) y;
 
 	}
 	
@@ -42,20 +41,9 @@ public class Fermat extends Point implements Comparable<Fermat>{
 		return gain;
 	}
 
-	public Fermat(double x, double y) {
-		this.xD = x;
-		this.yD = y;
-	}
-
-	
-	@Override
-	public double getX() {
-		return xD;
-	}
-
-	@Override
-	public double getY() {
-		return yD;
+	public Fermat(int x, int y) {
+		this.x = x;
+		this.y = y;
 	}
 
 	// Calcul de sin (PQR + PI/3)
