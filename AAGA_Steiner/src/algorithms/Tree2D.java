@@ -19,12 +19,15 @@ public class Tree2D {
 		this.root=p;
 		this.subtrees=trees;
 	}
+	
 	public Point getRoot(){
 		return this.root;
 	}
+	
 	public ArrayList<Tree2D> getSubTrees(){
 		return this.subtrees;
 	}
+	
 	public double distanceRootToSubTrees(){
 		double d=0;
 		for (int i=0;i<this.subtrees.size();i++){
@@ -306,8 +309,6 @@ public class Tree2D {
 			Collections.sort(fermats);
 			Collections.reverse(fermats);
 
-			//if(!fermats.isEmpty()){
-			//fermats=bestCombine(fermats, hashFermatToFils);
 			while(!fermats.isEmpty()){
 				Fermat best=fermats.remove(0);
 				Point rootConcerne=hashFermatToFils.get(best).get(0);

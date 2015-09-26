@@ -17,6 +17,7 @@ public class DefaultTeam {
 		int i=0;
 		int reduce=1;
 		int countNoChanged=0;
+
 		do{
 			changed=false;
 
@@ -38,23 +39,19 @@ public class DefaultTeam {
 
 			boolean fermatChanged;
 			if(reduce%2==0){
-			do{
-				fermatChanged=false;
-				if(Tracker.tracke(LABELS.INFO, treeTmp.deleteFermatLeaf(), "deleteFermatLeaf OK:"+treeTmp.getPoints().size())){
-					changed=true;
-					fermatChanged=true;
-				}
-				if(Tracker.tracke(LABELS.INFO, treeTmp.afineFermat(), "afineFermat OK:"+treeTmp.getPoints().size())){
-					changed=true;
-					fermatChanged=true;
-				}
-			}while(fermatChanged);
+				do{
+					fermatChanged=false;
+					if(Tracker.tracke(LABELS.INFO, treeTmp.deleteFermatLeaf(), "deleteFermatLeaf OK:"+treeTmp.getPoints().size())){
+						changed=true;
+						fermatChanged=true;
+					}
+					if(Tracker.tracke(LABELS.INFO, treeTmp.afineFermat(), "afineFermat OK:"+treeTmp.getPoints().size())){
+						changed=true;
+						fermatChanged=true;
+					}
+				}while(fermatChanged);
 			}
-			/*if(Tracker.tracke(LABELS.INFO, treeTmp.applyFermatSubAndSub(), "ApplyFermatSubAndSub OK:"+treeTmp.getPoints().size()))
-				changed=true;
 
-			if(Tracker.tracke(LABELS.INFO, treeTmp.ApplyFermatSubAndSubSub(), "ApplyFermatSubAndSubSub OK:"+treeTmp.getPoints().size()))
-				changed=true;*/
 			boolean applyed;
 
 			do{
@@ -66,17 +63,17 @@ public class DefaultTeam {
 			}while(applyed);
 
 			if(reduce%2==0){
-			do{
-				fermatChanged=false;
-				if(Tracker.tracke(LABELS.INFO, treeTmp.deleteFermatLeaf(), "deleteFermatLeaf OK:"+treeTmp.getPoints().size())){
-					changed=true;
-					fermatChanged=true;
-				}
-				if(Tracker.tracke(LABELS.INFO, treeTmp.afineFermat(), "afineFermat OK:"+treeTmp.getPoints().size())){
-					changed=true;
-					fermatChanged=true;
-				}
-			}while(fermatChanged);
+				do{
+					fermatChanged=false;
+					if(Tracker.tracke(LABELS.INFO, treeTmp.deleteFermatLeaf(), "deleteFermatLeaf OK:"+treeTmp.getPoints().size())){
+						changed=true;
+						fermatChanged=true;
+					}
+					if(Tracker.tracke(LABELS.INFO, treeTmp.afineFermat(), "afineFermat OK:"+treeTmp.getPoints().size())){
+						changed=true;
+						fermatChanged=true;
+					}
+				}while(fermatChanged);
 			}
 
 			points=treeTmp.getPoints();
@@ -91,7 +88,7 @@ public class DefaultTeam {
 				countNoChanged=0;
 			else
 				countNoChanged++;
-			if(countNoChanged==5){
+			if(countNoChanged==100){
 				countNoChanged=0;
 				for(int j=0;j<points.size();j++){
 					if(Tracker.tracke(LABELS.INFO, (points.get(j) instanceof Fermat) && Math.random()<0.3, "suppression 30% fermat")){
@@ -102,23 +99,9 @@ public class DefaultTeam {
 			}
 
 			i++;
-		}while(Tracker.tracke(LABELS.STATUS, changed || i<20, "changed : "+changed+" size : " + points.size() + " i : "+i+" bestScore : "+bestScore));
+		}while(Tracker.tracke(LABELS.STATUS, changed || i<2000, "changed : "+changed+" size : " + points.size() + " i : "+i+" bestScore : "+bestScore));
 
 		return best;
-	}
-
-
-
-	public ArrayList<Fermat> generate(int n, double xMin, double yMin, double xMax, double yMax){
-		ArrayList<Fermat> liste = new ArrayList<Fermat>();
-		int x, y;
-		Random random = new Random();
-		for(int i = 0; i < n; ++i){
-			x = (int) (xMin + random.nextInt((int) (xMax - xMin)));
-			y = (int) (yMin + random.nextInt((int) (yMax - yMin)));
-			liste.add(new Fermat(x, y));
-		}
-		return liste;
 	}
 
 }
