@@ -30,6 +30,7 @@ public class Fermat extends Point implements Comparable<Fermat>{
 
 		this.x = (int) x;
 		this.y = (int) y;
+		setLocation(x, y);
 
 	}
 	

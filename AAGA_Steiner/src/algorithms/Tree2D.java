@@ -82,6 +82,7 @@ public class Tree2D {
 					tree.subtrees.remove(i);
 					i--;
 					changed=true;
+					return changed;
 				}
 			}
 		}
@@ -89,18 +90,19 @@ public class Tree2D {
 	}
 
 	// Retourne l'arbre dont la racine est le point p.
-	public Tree2D getTreeWithRoot(Point p) {
-		if (this.getRoot().equals(p)) {
-			return this;
-		}else {
-			Tree2D res = null;
-			for (int i=0;i<this.subtrees.size();i++) {
-				if ((res = this.subtrees.get(i).getTreeWithRoot(p)) != null) {
-					return res;
-				}
+	public static Tree2D getTreeWithRoot(Tree2D tree,Point p) {
+		Stack<Tree2D> stack=new Stack<Tree2D>();
+		stack.add(tree);
+		
+		while(!stack.isEmpty()){
+			Tree2D elt=stack.pop();
+			if (elt.getRoot().equals(p)) {
+				return elt;
+			}else{
+				stack.addAll(elt.getSubTrees());
 			}
-			return null;
 		}
+		return null;
 	}
 
 	// Ajoute des Fermat à l'arbre passé en paramètre
@@ -240,7 +242,7 @@ public class Tree2D {
 		boolean changed=false;
 		boolean newFermat;
 
-		do{
+		//do{
 			newFermat=false;
 			LinkedList<Tree2D> pile=new LinkedList<>();
 			pile.add(tree);
@@ -267,7 +269,7 @@ public class Tree2D {
 						double newDistance=elt.root.distance(fermat)+fermat.distance(subTree.root)+fermat.distance(subSubTree.root);
 
 						fermat.setGain(regularDistance-newDistance);
-						if(fermat.getGain()>0){
+						if(fermat.getGain()>0.0){
 							ArrayList<Point> pointsImpliquer=new ArrayList<>();
 							pointsImpliquer.add(elt.root);
 							pointsImpliquer.add(subTree.root);
@@ -287,7 +289,7 @@ public class Tree2D {
 							double newDistance=elt.root.distance(fermat)+fermat.distance(subTree.root)+fermat.distance(subTreeBis.root);
 
 							fermat.setGain(regularDistance-newDistance);
-							if(fermat.getGain()>0){
+							if(fermat.getGain()>0.0){
 								ArrayList<Point> pointsImpliquer=new ArrayList<>();
 								pointsImpliquer.add(elt.root);
 								pointsImpliquer.add(subTree.root);
@@ -305,7 +307,8 @@ public class Tree2D {
 
 			Collections.sort(fermats);
 			Collections.reverse(fermats);
-
+			//if(fermats.size()>0)
+			//System.out.println("fermatsize : "+fermats.size()+"  "+fermats.get(0));
 			while(!fermats.isEmpty()){
 				Fermat best=fermats.remove(0);
 				Point rootConcerne=hashFermatToFils.get(best).get(0);
@@ -321,10 +324,10 @@ public class Tree2D {
 					}
 				}
 
-				Tree2D rootFermat=tree.getTreeWithRoot(rootConcerne);
+				Tree2D rootFermat=Tree2D.getTreeWithRoot(tree,rootConcerne);
 				Tree2D fermatTree=new Tree2D(best, new ArrayList<Tree2D>());
-				Tree2D treeA=tree.getTreeWithRoot(a);
-				Tree2D treeB=tree.getTreeWithRoot(b);
+				Tree2D treeA=Tree2D.getTreeWithRoot(tree,a);
+				Tree2D treeB=Tree2D.getTreeWithRoot(tree,b);
 				fermatTree.subtrees.add(treeA);
 				fermatTree.subtrees.add(treeB);
 
@@ -339,9 +342,9 @@ public class Tree2D {
 				changed=true;
 				newFermat=true;
 			}
-			
-		}while(newFermat);
-
+		//	System.out.println("newferma : "+newFermat);
+	//	}while(newFermat);
+	//	System.out.println("fini");
 		return changed;
 	}
 

@@ -16,15 +16,115 @@ public class DefaultTeam {
 		Tree2D prim;
 		Tree2D bestPrim=null;
 		Tree2D best=null;
+
 		int bestScore=Integer.MAX_VALUE;
+		int bestScorePrim;
+		int score;
+
+
 
 		boolean changed;
-		int i=0;
-		int reduce=1;
-		int countNoChanged=0;
+		boolean fermatChanged;
+
+
+
+		int j=0;
 
 		do{
-			changed=false;
+			int i=0;
+			int bonus=0;
+			ArrayList<Point> list=(ArrayList<Point>)points.clone();
+			bestScorePrim=Integer.MAX_VALUE;
+			do{
+
+				Tracker.resetInfoMsg();
+				Tracker.resetStatusMsg();
+				Tracker.resetErrorMsg();
+
+				//System.out.println("avan prim");
+				Tree2D tmp;
+				double scoreTmp;
+				double ScorePrim=Double.MAX_VALUE;
+				prim=null;
+				for(Point p:points){
+					if(Math.random()<0.012 || prim==null){
+						tmp=Prim.compute(list, (ArrayList<Point>)points.clone(),p);
+
+						scoreTmp=tmp.score();
+						if(scoreTmp<ScorePrim){
+							ScorePrim=scoreTmp;
+							prim=tmp;
+						}
+					}
+				}
+				//Tracker.trackeInfo((prim=Prim.compute(list,(ArrayList<Point>)points.clone()))!=null," prim : OK");
+
+				//System.out.println("apres prim");
+
+				int bornceBoucle=0;
+				do{
+					changed=false;
+
+					//System.out.println("avant applyfermat");
+					int boucle=0;
+					//			do{
+					fermatChanged=false;
+					/*		if(Tracker.tracke(LABELS.INFO, prim.ApplyFermatSubAndSubSub(), "ApplyFermatSubAndSubSub OK:"+prim.getPoints().size())){
+							fermatChanged=true;
+							changed=true;
+						}
+						if(Tracker.tracke(LABELS.INFO, prim.applyFermatSubAndSub(), "applyFermatSubAndSub OK:"+prim.getPoints().size())){
+							fermatChanged=true;
+							changed=true;
+						}
+
+					 */	
+					if(Tracker.trackeInfo(Tree2D.applyFermat(prim), "applyFermat OK : "+prim.getPoints().size())){
+						fermatChanged=true;
+						changed=true;
+					}
+					boucle++;
+					//		}while(fermatChanged && boucle<10);
+
+					//System.out.println("apres applyfermat");
+
+					//System.out.println("avant reducefermat");
+
+					do{
+						fermatChanged=false;
+						if(Tracker.trackeInfo(prim.deleteFermatLeaf(), "deleteFermatLeaf OK : "+prim.getPoints().size())){
+							fermatChanged=true;
+							changed=true;
+						}
+						if(Tracker.trackeInfo(prim.afineFermat(), "afineFermat OK : "+prim.getPoints().size())){
+							fermatChanged=true;
+							changed=true;
+						}
+					}while(fermatChanged);
+
+					//System.out.println("apres reducefermat");
+					bornceBoucle++;
+				}while(changed && bornceBoucle <20);
+
+				score=prim.score();
+
+				if(score<bestScorePrim){
+					bestScorePrim=score;
+					bestPrim=prim;
+
+					if(bestScorePrim<bestScore){
+						bestScore=bestScorePrim;
+						best=bestPrim;
+					}
+				}
+
+
+				list=bestPrim.getPoints();
+				int size=list.size();
+				list=Prim.checkDoublons(list,(ArrayList<Point>)points.clone());
+				int newSize=list.size();
+				Tracker.trackeInfo(size!=newSize,"doublons OK : "+(size-newSize));
+				/*changed=false;
 
 
 
@@ -37,7 +137,7 @@ public class DefaultTeam {
 				reduce++;
 
 				boolean fermatChanged;
-				//if(reduce%2==0){
+				if(reduce%2==0){
 				do{
 					fermatChanged=false;
 					if(Tracker.tracke(LABELS.INFO, prim.deleteFermatLeaf(), "deleteFermatLeaf OK:"+prim.getPoints().size())){
@@ -47,7 +147,7 @@ public class DefaultTeam {
 						fermatChanged=true;
 					}
 				}while(fermatChanged);
-				//}
+				}
 
 				boolean applyed;
 
@@ -58,7 +158,7 @@ public class DefaultTeam {
 					}
 				}while(applyed);
 
-				//if(reduce%2==0){
+				if(reduce%2==0){
 				do{
 					fermatChanged=false;
 					if(Tracker.tracke(LABELS.INFO, prim.deleteFermatLeaf(), "deleteFermatLeaf OK:"+prim.getPoints().size())){
@@ -68,13 +168,13 @@ public class DefaultTeam {
 						fermatChanged=true;
 					}
 				}while(fermatChanged);
-				//}
+				}
 
 				scorePrim=prim.score();
 				if(scorePrim<bestScorePrim){
 					bestScorePrim=scorePrim;
 					bestPrim=prim;
-					
+
 				}
 			}
 
@@ -99,11 +199,28 @@ public class DefaultTeam {
 						j--;
 					}
 				}
-			}
+			}*/
 
-			i++;
-		}while(Tracker.tracke(LABELS.STATUS, changed || i<10, "changed : "+changed+" size : " + points.size() + " i : "+i+" bestScore : "+bestScore));
+				i++;
+				Tracker.addStatusMsg("j             : "+j);
+				Tracker.addStatusMsg("i             : "+i);
+				Tracker.addStatusMsg("size points   : "+list.size());
+				Tracker.addStatusMsg("score         : "+score);
+				Tracker.addStatusMsg("bestScorePrim : "+bestScorePrim);
+				Tracker.addStatusMsg("bestScore     : "+bestScore);	
 
+
+				Tracker.printError();
+				Tracker.printInfos();
+				Tracker.printStatus();
+				
+				if(bestScorePrim<3889 && bonus==0){
+					bonus=500;
+				}
+			}while(i<500+bonus);
+			
+			j++;
+		}while(j<10);
 		return best;
 	}
 
