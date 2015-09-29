@@ -1,6 +1,11 @@
 package algorithms;
 
 import java.awt.Point;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.file.DirectoryStream.Filter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -393,4 +398,32 @@ public class Tree2D {
 		return bestList;
 	}
 
+	public static void print(Tree2D tree){
+		int score=tree.score();
+		
+		try {
+			File file=new File("score_"+score);
+			FileWriter fw=new FileWriter(file);
+			BufferedWriter bw=new BufferedWriter(fw);
+			
+			Stack<Tree2D> stack=new Stack<>();
+			stack.add(tree);
+			
+			while(!stack.isEmpty()){
+				Tree2D elt=stack.pop();
+				stack.addAll(elt.getSubTrees());
+				bw.write(elt.root.x+" "+elt.root.y+"\n");
+				/*for(Tree2D child:elt.getSubTrees()){
+					bw.write(elt.root.x+" "+elt.root.y+" "+child.root.x+" "+child.root.y+"\n");
+				}*/
+			}
+			
+			bw.close();
+			fw.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
