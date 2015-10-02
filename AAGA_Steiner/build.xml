@@ -1,4 +1,4 @@
-<project name="TME_Steiner2D" default="compile" basedir=".">
+<project name="TME_SteinerBudget" default="compile" basedir=".">
     <description>
         The build file for the coffee break
     </description>
@@ -19,7 +19,7 @@
           description="run examples">
     <echo>================ Run Object Main ================</echo>
     <java classname="supportGUI.SteinerViewer"
-          classpath="${build}/:jars/Steiner_supportGUI.jar" fork="true">
+          classpath="${build}/:jars/supportGUI.jar" fork="true">
     	<arg value="-nbPoints"/>
     	<arg value="100"/>
     </java>
@@ -28,7 +28,7 @@
   <target name="dist" depends="init,clean"
         description="Generer la distribution" >
     <!-- tout mettre dans l'archive -->
-    <jar basedir="." jarfile="../TME_Steiner2D_${DSTAMP}.jar"/>
+    <jar basedir="." jarfile="../TME_SteinerBudget_${DSTAMP}.jar"/>
   </target>
 
   <target name="clean"

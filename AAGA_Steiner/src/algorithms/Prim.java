@@ -17,12 +17,12 @@ public class Prim {
 
 		points=checkDoublons(points,origin);
 
-		/*Tracker.tracke(LABELS.INFO, beforeSize!=points.size(), "doublons repéré");*/
+		/*Tracker.tracke(LABELS.INFO, beforeSize!=points.size(), "doublons repere");*/
 
 		// L'arbre que l'on retournera
 		Tree2D resultTree = null;
 
-		// Une liste qui contiendra tous les points que l'on a consulté
+		// Une liste qui contiendra tous les points que l'on a consulte
 		ArrayList<Point> treePoints = new ArrayList<>();
 
 		// On initialise l'arbre avec le premier point
@@ -41,7 +41,7 @@ public class Prim {
 			//enleve fermat doublons
 			points=checkDoublons(points,origin);
 
-			// On cherche l'arête qui relie un point de l'arbre à un point 
+			// On cherche l'arete qui relie un point de l'arbre a un point 
 			// qui n'est pas dans l'arbre. De plus c'est l'arête de longueur
 			// minimale.
 			Edge minimumEdge = null;
@@ -50,10 +50,10 @@ public class Prim {
 			for (Point treePoint : treePoints) {
 				for (Point point : points) {
 					if (!treePoints.contains(point)) {
-						if(Math.random()<0.000301){
-							//minimumEdge = new Edge(treePoint, point);
-							//minimumEdgeLength = minimumEdge.length();
-							//break;
+						if(Math.random()<0.000){
+							minimumEdge = new Edge(treePoint, point);
+							minimumEdgeLength = minimumEdge.length();
+							break;
 						}
 						else{
 							if ((treePoint.distance(point) < minimumEdgeLength)) {
@@ -65,7 +65,7 @@ public class Prim {
 				}
 			}
 
-			// On récupère la feuille correspondant au point appartenant à l'arbre
+			// On recupere la feuille correspondant au point appartenant à l'arbre
 			// déjà créé. (On a fait en sorte que ce soit le bout A de l'arête)
 			if(Tracker.tracke(LABELS.ERROR, minimumEdge == null, "minimumEdge==null")){
 				treePoints.add(treePoints.get(0));
@@ -74,7 +74,7 @@ public class Prim {
 
 			Tree2D leaf = Tree2D.getTreeWithRoot(resultTree,minimumEdge.A);
 
-			// On crée une feuille pour le point à relier.
+			// On crée une feuille pour le point a relier.
 			Tree2D newLeaf = new Tree2D(minimumEdge.B, new ArrayList<Tree2D>());
 			// On relie les deux feuilles.
 			leaf.getSubTrees().add(newLeaf);

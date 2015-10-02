@@ -59,7 +59,6 @@ public class Tree2D {
 
 	}
 
-	// Fonction d'évaluation
 	public int score() {
 		double res = 0;
 		ArrayList<Tree2D> trees = new ArrayList<>();
@@ -110,10 +109,6 @@ public class Tree2D {
 		return null;
 	}
 
-	// Ajoute des Fermat à l'arbre passé en paramètre
-	// si ceux-ci permettent d'améliorer le score.
-	// Configuration étudiée ici :
-	// Racine - Fils - Petit-Fils
 	public boolean ApplyFermatSubAndSubSub(){
 		boolean changed=false;
 
@@ -155,9 +150,6 @@ public class Tree2D {
 		return changed;
 	}
 
-	// Idem que la méthode précédente.
-	// Configuration étudiée ici :
-	// Fils - Racine - Fils
 	public boolean applyFermatSubAndSub(){
 		boolean changed=false;
 

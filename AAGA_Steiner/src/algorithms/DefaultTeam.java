@@ -1,13 +1,8 @@
 package algorithms;
 
 import java.awt.Point;
-import java.awt.PageAttributes.OriginType;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -15,148 +10,110 @@ import java.util.Scanner;
 import algorithms.Tracker.LABELS;
 
 public class DefaultTeam {
-	public Tree2D calculSteiner(ArrayList<Point> points) {
 
-		Tracker.addMask(LABELS.INFO.getMask());
-		Tracker.addMask(LABELS.ERROR.getMask());
+	public Tree2D calculSteiner(ArrayList<Point> points) {
+		ArrayList<Fermat> listFermats=fromFile("score_3876", points);
+
+		ArrayList<Point> list=new ArrayList<>();
+		for(Point p:points){
+			list.add(p);
+		}
+		for(Fermat f:listFermats)
+			list.add(f);
+
+		Point p=points.get(50);
+		Tree2D steinerTree=Prim.compute(list, points, p);
+		return steinerTree;
+	}
+
+	public Tree2D calculSteinerBudget(ArrayList<Point> points) {
 		Tracker.addMask(LABELS.STATUS.getMask());
 
-		Tree2D prim;
-		Tree2D bestPrim=null;
-		Tree2D best=null;
-
-		int bestScore=Integer.MAX_VALUE;
-		int bestScorePrim;
-		int score;
+		Tree2D tree=calculSteiner(points);
+		double budget=1664;
+		Random rand=new Random();
 
 
+		ArrayList<Point> toJoin=tree.getPoints();
+		toJoin.remove(points.get(50));
 
-		boolean changed;
-		boolean fermatChanged;
+		ArrayList<Point> meilleurList=new ArrayList<>();
+		int i=0;
 
-
-
-		int j=0;
-
-		ArrayList<Fermat> listFermats=fromFile("score_3878", points);
 		do{
-			int i=0;
-			int bonus=0;
 			ArrayList<Point> list=new ArrayList<>();
-			for(Point p:points){
-				list.add(p);
-			}
-			for(Fermat f:listFermats)
-				list.add(f);
-			bestScorePrim=Integer.MAX_VALUE;
+			list.addAll(toJoin);
+
+			ArrayList<Point> joins=new ArrayList<>();
+			joins.add(points.get(50));
+			double budgetRest=budget;
 			do{
-
-				Tracker.resetInfoMsg();
-				Tracker.resetStatusMsg();
-				Tracker.resetErrorMsg();
-
-				Tree2D tmp;
-				double scoreTmp;
-				double ScorePrim=Double.MAX_VALUE;
-				prim=null;
-				for(Point p:points){
-					if(Math.random()<1 || prim==null){
-						tmp=Prim.compute(list, points,p);
-
-
-						int bornceBoucle=0;
-						do{
-							changed=false;
-
-							int boucle=0;
-							fermatChanged=false;
-							if(Tracker.trackeInfo(Tree2D.applyFermat(tmp), "applyFermat OK : "+tmp.getPoints().size())){
-								fermatChanged=true;
-								changed=true;
-							}
-							boucle++;
-
-							do{
-								fermatChanged=false;
-								if(Tracker.trackeInfo(tmp.deleteFermatLeaf(), "deleteFermatLeaf OK : "+tmp.getPoints().size())){
-									fermatChanged=true;
-									changed=true;
-								}
-								if(Tracker.trackeInfo(tmp.afineFermat(), "afineFermat OK : "+tmp.getPoints().size())){
-									fermatChanged=true;
-									changed=true;
-								}
-							}while(fermatChanged);
-
-							bornceBoucle++;
-						}while(changed && bornceBoucle <20);
-
-
-						scoreTmp=tmp.score();
-						if(scoreTmp<ScorePrim){
-							ScorePrim=scoreTmp;
-							prim=tmp;
-						}
-					}
+				Point from=joins.get(rand.nextInt(joins.size()));
+				filter(from, list, budgetRest);
+				if(!list.isEmpty()){
+					Point to=list.remove(rand.nextInt(list.size()));
+					joins.add(to);
+					budgetRest-=from.distance(to);
 				}
+			}while(!list.isEmpty());
 
+			if(meilleurList.size()<joins.size()){
+				meilleurList=joins;
+			}
+			Tracker.resetStatusMsg();
+			Tracker.addStatusMsg("i             : "+i);
+			Tracker.addStatusMsg("score         : "+joins.size());
+			Tracker.addStatusMsg("Bestscore     : "+meilleurList.size());
+			Tracker.printStatus();
+			i++;
+		}while(i<999999999);
 
-
-				score=prim.score();
-
-				if(score<bestScorePrim){
-					bestScorePrim=score;
-					bestPrim=prim;
-
-					if(bestScorePrim<bestScore){
-						bestScore=bestScorePrim;
-						best=bestPrim;
-						
-						if(bestScore<3885){
-							Tree2D.print(best);
-							Tracker.addInfoMsg("save tree OK");
-						}
-					}
-					
-					
-				}
-
-
-				list=bestPrim.getPoints();
-				int size=list.size();
-				list=Prim.checkDoublons(list,(ArrayList<Point>)points.clone());
-				int newSize=list.size();
-				Tracker.trackeInfo(size!=newSize,"doublons OK : "+(size-newSize));
-				
-
-				i++;
-				Tracker.addStatusMsg("j             : "+j);
-				Tracker.addStatusMsg("i             : "+i);
-				Tracker.addStatusMsg("size points   : "+list.size());
-				Tracker.addStatusMsg("score         : "+score);
-				Tracker.addStatusMsg("bestScorePrim : "+bestScorePrim);
-				Tracker.addStatusMsg("bestScore     : "+bestScore);	
-
-
-				//Tracker.printError();
-				//Tracker.printInfos();
-				Tracker.printStatus();
-
-				if(bestScorePrim<3889 && bonus==0){
-					bonus=500;
-				}
-			}while(i<500+bonus);
-
-			j++;
-		}while(j<10);
-		return best;
+		return Prim.compute(meilleurList, points, points.get(50));
 	}
-	
+
+	public void filter(Point from,ArrayList<Point> list,double budget){
+		for(int i=0;i<list.size();i++){
+			if(list.get(i).distance(from)>budget){
+				list.remove(i);
+				i--;
+			}
+		}
+	}
+	int i=0;
+	private ArrayList<Point> joignable(Point root, ArrayList<Tree2D> subTrees, double budget) {
+		System.out.println(i++);
+		ArrayList<Point> res=new ArrayList<>();
+
+		if(budget<0)
+			return res;
+
+		res.add(root);
+
+		if(subTrees.isEmpty()){
+
+			return res;
+
+		}
+		ArrayList<Point> score=new ArrayList<>();
+		ArrayList<Point> tmp;
+		for (Tree2D t : subTrees) {
+			ArrayList<Tree2D> sub=(ArrayList<Tree2D>)subTrees.clone();
+			sub.addAll(t.getSubTrees());
+			tmp=joignable(t.getRoot(), sub, budget-root.distance(t.getRoot()));
+			if(score.size()<tmp.size()){
+				score=tmp;
+			}
+		}
+
+		res.addAll(score);
+		return res;
+	}
+
 	public ArrayList<Fermat> fromFile(String fileName,ArrayList<Point> origin){
-		
+
 		ArrayList<Fermat> list=new ArrayList<>();
 		try {
-			
+
 			Scanner scan=new Scanner(new File(fileName));
 			int x,y;
 			while(scan.hasNextInt()){
@@ -165,14 +122,12 @@ public class DefaultTeam {
 				Point p=new Point(x, y);
 				if(!origin.contains(p))
 					list.add(new Fermat(x,y));
-				
+
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return list;
 	}
-
 }
