@@ -13,11 +13,10 @@ import algorithms.Tracker.LABELS;
 
 public class Prim {
 
-	public static Tree2D compute(ArrayList<Point> points,ArrayList<Point> origin,Point p) {
+	public static Tree2D compute(ArrayList<Point> points,ArrayList<Point> origin,Point p,double bruitage) {
 
 		points=checkDoublons(points,origin);
 
-		/*Tracker.tracke(LABELS.INFO, beforeSize!=points.size(), "doublons repere");*/
 
 		// L'arbre que l'on retournera
 		Tree2D resultTree = null;
@@ -27,12 +26,9 @@ public class Prim {
 
 		// On initialise l'arbre avec le premier point
 		Random rand = new Random();
-		//Point p = points.get(rand.nextInt(points.size()));
+
 		resultTree = new Tree2D(p, new ArrayList<Tree2D>());
 		treePoints.add(p);
-		/*resultTree = new Tree2D(depart, new ArrayList<Tree2D>()); 
-		treePoints.add(depart);
-		 */
 
 
 		// Condition d'arret : tous les points sont dans l'arbre 
@@ -50,7 +46,7 @@ public class Prim {
 			for (Point treePoint : treePoints) {
 				for (Point point : points) {
 					if (!treePoints.contains(point)) {
-						if(Math.random()<0.000){
+						if(Math.random()<bruitage){
 							minimumEdge = new Edge(treePoint, point);
 							minimumEdgeLength = minimumEdge.length();
 							break;
@@ -81,21 +77,6 @@ public class Prim {
 			// On ajoute le nouveau point à la liste.
 			treePoints.add(minimumEdge.B);
 			//	Tree2D.applyFermat(resultTree);
-
-			//resultTree.ApplyFermatSubAndSubSub();
-			//resultTree.applyFermatSubAndSub();
-			/*Tracker.removeMask(LABELS.INFO.getMask());
-			Tracker.tracke(LABELS.INFO, resultTree.ApplyFermatSubAndSubSub(), "ApplyFermatSubAndSubSub OK:"+resultTree.getPoints().size());
-			Tracker.tracke(LABELS.INFO, resultTree.applyFermatSubAndSub(), "ApplyFermatSubAndSub OK:"+resultTree.getPoints().size());
-			Tracker.addMask(LABELS.INFO.getMask());*/
-			/*	boolean fermatAdded;
-			do{
-				fermatAdded=false;
-				if(Tree2D.applyFermat(resultTree)){//Tracker.tracke(LABELS.INFO, Tree2D.applyFermat(resultTree), "applyFermat OK:"+resultTree.getPoints().size())){
-					fermatAdded=true;
-				}
-			}while(fermatAdded);
-			 */
 
 		}
 

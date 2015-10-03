@@ -22,95 +22,207 @@ public class DefaultTeam {
 			list.add(f);
 
 		Point p=points.get(50);
-		Tree2D steinerTree=Prim.compute(list, points, p);
+		Tree2D steinerTree=Prim.compute(list, points, p,0);
 		return steinerTree;
 	}
 
+
 	public Tree2D calculSteinerBudget(ArrayList<Point> points) {
+
 		Tracker.addMask(LABELS.STATUS.getMask());
 
-		Tree2D tree=calculSteiner(points);
+		Tree2D steinerTree=calculSteiner(points);
+		//	ArrayList<Point> notLeaf=steinerTree.getPointNoLeaf();
 		double budget=1664;
 		Random rand=new Random();
 
 
-		ArrayList<Point> toJoin=tree.getPoints();
-		toJoin.remove(points.get(50));
+		/*liste de points a joindre*/
+		
 
-		ArrayList<Point> meilleurList=new ArrayList<>();
+		int score=steinerTree.score();
+		while(score>budget){
+			ArrayList<Point> pointsSteiner=steinerTree.getPoints();
+			double distance;
+			double distanceMax=Double.MIN_VALUE;
+			Point leafMax=null;
+			ArrayList<Point> leafs=steinerTree.getPointLeaf();
+
+			for(Point p:leafs){
+				distance=p.distance(plusPres(pointsSteiner, p));
+				if (distanceMax<distance) {
+					distanceMax=distance;
+					leafMax=p;
+
+					Tree2D tt=Tree2D.getTreeWithRoot(steinerTree, leafMax);
+				}
+			}
+
+
+			steinerTree.deleteIfLeaf(leafMax);
+			steinerTree.deleteFermatLeaf();
+			
+			score=steinerTree.score();
+
+			Tracker.resetStatusMsg();
+			Tracker.addStatusMsg("distance : "+score);
+			Tracker.addStatusMsg("score :"+getScore(steinerTree.getPoints(), points));
+			Tracker.printStatus();
+		}
+
+		return steinerTree;
+
+
+
+
+
+
+
+
+
+		/*
+		pointsToJoin.remove(points.get(50));
+
+		ArrayList<Point> meilleurList=new ArrayList<>(); //list avec meilleur score
+		ArrayList<Point> list=new ArrayList<>();
+		ArrayList<Point> pointsJoins=new ArrayList<>();
+		ArrayList<Point> listFiltrer=null;
+		pointsJoins.add(points.get(50));
+
 		int i=0;
-
+		int bestScore,score;
+		bestScore=0;
+		double budgetRest=budget;
+		Tree2D meilleurTree=null;
 		do{
-			ArrayList<Point> list=new ArrayList<>();
-			list.addAll(toJoin);
+			Tracker.resetInfoMsg();
 
-			ArrayList<Point> joins=new ArrayList<>();
-			joins.add(points.get(50));
-			double budgetRest=budget;
+			for(Point p:pointsToJoin){
+				if(!pointsJoins.contains(p))
+					list.add(p);
+			}
+
+			boolean found;
 			do{
-				Point from=joins.get(rand.nextInt(joins.size()));
-				filter(from, list, budgetRest);
-				if(!list.isEmpty()){
-					Point to=list.remove(rand.nextInt(list.size()));
-					joins.add(to);
+
+				// 1 list des noeud non feuille déja dans pointsJoins
+				ArrayList<Point> poolNotLeaf=(ArrayList<Point>) notLeaf.clone();
+				for (int k=0;k<poolNotLeaf.size();k++) {
+					if(!pointsJoins.contains(poolNotLeaf.get(k))){
+						poolNotLeaf.remove(k);
+						k--;
+					}
+				}
+
+				Point from=null;
+				ArrayList<Point> childFrom=null;
+
+				found=false;
+				while(!found && !poolNotLeaf.isEmpty()){
+					// 2 pop list non feuille
+					from=poolNotLeaf.remove(rand.nextInt(poolNotLeaf.size()));
+					childFrom=new ArrayList<>();
+
+					Tree2D t=Tree2D.getTreeWithRoot(steinerTree, from);
+
+					// cherche noeud suivant de from dans steiner
+					// a ajouter
+					for(Tree2D childT:t.getSubTrees()){
+						if(!pointsJoins.contains(childT.getRoot()))
+							childFrom.add(childT.getRoot());
+					}
+
+					// 3 filtrer
+					listFiltrer=filter(from, childFrom, budgetRest);
+
+					// 4 si filtrer vide 2
+					found=!listFiltrer.isEmpty();
+				}
+
+
+				if(found){
+					Point to;
+					if(Math.random()<0.003)
+						to=listFiltrer.get(rand.nextInt(listFiltrer.size()));
+					else
+						to=plusPres(listFiltrer, from);
+					list.remove(to);
+					pointsJoins.add(to);
 					budgetRest-=from.distance(to);
 				}
-			}while(!list.isEmpty());
 
-			if(meilleurList.size()<joins.size()){
-				meilleurList=joins;
+			}while(!list.isEmpty() && found);
+
+			score=getScore(pointsJoins, points);
+			if(score>bestScore){
+				meilleurList=(ArrayList<Point>)pointsJoins.clone();
+				bestScore=score;
 			}
+
+
+
+			meilleurTree=Prim.compute(meilleurList, points, points.get(50), 0);
+
+			int nbSupMax=meilleurTree.getPoints().size();
+			Tracker.addInfoMsg("nombre de suppression max : "+nbSupMax);
+			int count=0;
+			for(int k=0;k<nbSupMax;k++){
+				ArrayList<Point> leaf=meilleurTree.getPointLeaf();
+				for(int j=0;j<leaf.size();j++){
+					if(leaf.get(j) instanceof Fermat){
+						count++;
+						leaf.remove(leaf.get(j));
+					}
+				}
+				if(Math.random()<0.3){
+					count++;
+
+					meilleurTree.deleteIfLeaf(leaf.get(rand.nextInt(leaf.size())));
+					meilleurTree=Prim.compute(meilleurList, points, points.get(50), 0);
+				}
+			}
+			Tracker.addInfoMsg("nombre de suppression : "+count);
+
+			pointsJoins=meilleurTree.getPoints();
+
+			Tracker.printInfos();
+
 			Tracker.resetStatusMsg();
 			Tracker.addStatusMsg("i             : "+i);
-			Tracker.addStatusMsg("score         : "+joins.size());
-			Tracker.addStatusMsg("Bestscore     : "+meilleurList.size());
+			Tracker.addStatusMsg("score         : "+score);
+			Tracker.addStatusMsg("Bestscore     : "+bestScore);
 			Tracker.printStatus();
 			i++;
-		}while(i<999999999);
+		}while(i<100000);
 
-		return Prim.compute(meilleurList, points, points.get(50));
+		return Prim.compute(meilleurList, points, points.get(50),0);*/
 	}
 
-	public void filter(Point from,ArrayList<Point> list,double budget){
-		for(int i=0;i<list.size();i++){
-			if(list.get(i).distance(from)>budget){
-				list.remove(i);
-				i--;
+
+
+	public int getScore(ArrayList<Point> list,ArrayList<Point> origins){
+		int score=0;
+		for(Point p:list){
+			if(origins.contains(p)){
+				score++;
 			}
 		}
+		return score;
 	}
-	int i=0;
-	private ArrayList<Point> joignable(Point root, ArrayList<Tree2D> subTrees, double budget) {
-		System.out.println(i++);
-		ArrayList<Point> res=new ArrayList<>();
 
-		if(budget<0)
-			return res;
 
-		res.add(root);
-
-		if(subTrees.isEmpty()){
-
-			return res;
-
-		}
-		ArrayList<Point> score=new ArrayList<>();
-		ArrayList<Point> tmp;
-		for (Tree2D t : subTrees) {
-			ArrayList<Tree2D> sub=(ArrayList<Tree2D>)subTrees.clone();
-			sub.addAll(t.getSubTrees());
-			tmp=joignable(t.getRoot(), sub, budget-root.distance(t.getRoot()));
-			if(score.size()<tmp.size()){
-				score=tmp;
+	public ArrayList<Point> filter(Point from,ArrayList<Point> list,double budget){
+		ArrayList<Point> resultat=new ArrayList<>();
+		for(Point p:list){
+			if(p.distance(from)<=budget){
+				resultat.add(p);
 			}
 		}
-
-		res.addAll(score);
-		return res;
+		return resultat;
 	}
+
 
 	public ArrayList<Fermat> fromFile(String fileName,ArrayList<Point> origin){
-
 		ArrayList<Fermat> list=new ArrayList<>();
 		try {
 
@@ -130,4 +242,22 @@ public class DefaultTeam {
 
 		return list;
 	}
+
+	public Point plusPres(ArrayList<Point> points,Point from){
+		double distanceMin=Double.MAX_VALUE;
+		double distance;
+		Point min=null;
+
+		for(Point p:points){
+			if(!p.equals(from)){
+				distance=p.distance(from);
+				if(distance<distanceMin){
+					min=p;
+					distanceMin=distance;
+				}
+			}
+		}
+		return min;
+	}
+
 }
